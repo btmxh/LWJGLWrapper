@@ -21,12 +21,19 @@ import org.joml.Vector4i;
  */
 public class VAOBuilder {
 
+    private VAO vao;
+    
     private FloatArrayStack[] floatBuffers;
     private IntArrayStack[] intBuffers;
     private IntArrayStack indexBuffer;
     private int[] sizePerVertex;
 
     public VAOBuilder(int floatBuffers, int intBuffers) {
+        this(new VAO(), floatBuffers, intBuffers);
+    }
+    
+    public VAOBuilder(VAO vao, int floatBuffers, int intBuffers) {
+        this.vao = vao;
         this.floatBuffers = new FloatArrayStack[floatBuffers];
         this.intBuffers = new IntArrayStack[intBuffers];
         this.sizePerVertex = new int[floatBuffers + intBuffers];
@@ -86,7 +93,6 @@ public class VAOBuilder {
     }
     
     public VAO createVAO() {
-        VAO vao = new VAO();
         vao.bind();
         for (int i = 0; i < floatBuffers.length; i++) {
             float[] buffer = floatBuffers[i].getArray();
@@ -100,5 +106,9 @@ public class VAOBuilder {
         vao.unbind();
         
         return vao;
+    }
+
+    public void setVAO(VAO vao) {
+        this.vao = vao;
     }
 }
