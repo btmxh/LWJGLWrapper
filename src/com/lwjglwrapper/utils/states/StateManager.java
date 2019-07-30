@@ -6,6 +6,8 @@
 package com.lwjglwrapper.utils.states;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  *
@@ -15,6 +17,14 @@ public class StateManager extends ArrayList<State>{
     private int currentStateIndex;
 
     public StateManager() {
+    }
+    
+    public StateManager(State... states) {
+        super(Arrays.asList(states));
+    }
+    
+    public StateManager(Collection<State> states) {
+        super(states);
     }
 
     public int getCurrentStateIndex() {
