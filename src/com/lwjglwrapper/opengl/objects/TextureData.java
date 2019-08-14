@@ -5,8 +5,12 @@
  */
 package com.lwjglwrapper.opengl.objects;
 
+import com.lwjglwrapper.utils.Utils;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -53,6 +57,23 @@ public class TextureData {
 
             return new TextureData(w.get(), h.get(), pixels);
         }
+    }
+    
+    public static TextureData fromResource(Class cl, String path) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            IntBuffer comp = stack.mallocInt(1);
+
+            ByteBuffer buffer = Utils.ioResourceToByteBuffer(cl.getResourceAsStream(path), 8 * 1024);
+            
+            ByteBuffer pixels = STBImage.stbi_load_from_memory(buffer, w, h, comp, 4);
+
+            return new TextureData(w.get(), h.get(), pixels);
+        } catch (IOException ex) {
+            Logger.getLogger(TextureData.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     public float getAspectRatio() {

@@ -94,6 +94,7 @@ public class VAOBuilder {
     
     public VAO createVAO() {
         vao.bind();
+        vao.createIndexBuffer(indexBuffer.getArray());
         for (int i = 0; i < floatBuffers.length; i++) {
             float[] buffer = floatBuffers[i].getArray();
             vao.createAttribute(i, buffer, sizePerVertex[i]);
@@ -102,7 +103,6 @@ public class VAOBuilder {
             int[] buffer = intBuffers[i].getArray();
             vao.createIntAttribute(i + floatBuffers.length, buffer, sizePerVertex[i + floatBuffers.length]);
         }
-        vao.createIndexBuffer(indexBuffer.getArray());
         vao.unbind();
         
         return vao;

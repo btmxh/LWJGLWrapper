@@ -16,7 +16,7 @@ import org.lwjgl.glfw.GLFW;
  */
 public class Loop implements Runnable {
 
-    protected Window window;
+    public Window window;
     
     protected int frameNo;
     protected double delta;
