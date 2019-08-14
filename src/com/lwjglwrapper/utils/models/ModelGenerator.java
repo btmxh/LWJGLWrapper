@@ -82,6 +82,18 @@ public class ModelGenerator {
         builder.putIndex(0, 1, 2, 0, 2, 3);
         return builder.createVAO();
     }
+    
+    public VAO rect3d(float x, float y, float w, float h, float commonZ) {
+        VAOBuilder builder = new VAOBuilder(1, 0);
+        builder.createFloatBuffer(8, 0, 2);
+        builder.createIndexBuffer(6);
+        builder.put(loader.positionAttrib, x, y, commonZ);
+        builder.put(loader.positionAttrib, x + w, y, commonZ);
+        builder.put(loader.positionAttrib, x + w, y + h, commonZ);
+        builder.put(loader.positionAttrib, x, y + h, commonZ);
+        builder.putIndex(0, 1, 2, 0, 2, 3);
+        return builder.createVAO();
+    }
 
     public VAO meshXYZ(float[][] heights, Vector3f offset, Vector3f scale,
             int width, int height) {
