@@ -11,6 +11,10 @@ import java.util.Collection;
 import java.util.stream.IntStream;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
+import org.liquidengine.cbchain.impl.ChainCursorEnterCallback;
+import org.liquidengine.cbchain.impl.ChainCursorPosCallback;
+import org.liquidengine.cbchain.impl.ChainMouseButtonCallback;
+import org.liquidengine.cbchain.impl.ChainScrollCallback;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorEnterCallbackI;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
@@ -23,16 +27,20 @@ import org.lwjgl.glfw.GLFWScrollCallbackI;
  */
 public class Mouse {
 
-    GLFWCursorEnterCallbackI enterCallback;
-    GLFWCursorPosCallbackI mousePositionCallback;
-    GLFWMouseButtonCallbackI buttonCallback;
-    GLFWScrollCallbackI scrollCallback;
+    ChainCursorEnterCallback enterCallback;
+    ChainCursorPosCallback mousePositionCallback;
+    ChainMouseButtonCallback buttonCallback;
+    ChainScrollCallback scrollCallback;
 
     public Mouse() {
-        this.scrollCallback = (winID, xOff, yOff) -> scroll(LWJGL.allWindows.get(winID), xOff, yOff);
-        this.buttonCallback = (winID, button, action, mods) -> mouseButton(LWJGL.allWindows.get(winID), button, action, mods);
-        this.mousePositionCallback = (winID, xPos, yPos) -> mousePosition(LWJGL.allWindows.get(winID), xPos, yPos);
-        this.enterCallback = (winID, entered) -> cursorEnter(LWJGL.allWindows.get(winID), entered);
+        this.scrollCallback = new ChainScrollCallback();
+        scrollCallback.add((winID, xOff, yOff) -> scroll(LWJGL.allWindows.get(winID), xOff, yOff));
+        this.buttonCallback = new ChainMouseButtonCallback();
+        buttonCallback.add((winID, button, action, mods) -> mouseButton(LWJGL.allWindows.get(winID), button, action, mods));
+        this.mousePositionCallback = new ChainCursorPosCallback();
+        mousePositionCallback.add((winID, xPos, yPos) -> mousePosition(LWJGL.allWindows.get(winID), xPos, yPos));
+        this.enterCallback = new ChainCursorEnterCallback();
+        enterCallback.add((winID, entered) -> cursorEnter(LWJGL.allWindows.get(winID), entered));
         
         mousePos = new Vector2i();
         lastFrameMousePos = new Vector2i();

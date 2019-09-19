@@ -21,7 +21,6 @@ public class Loop implements Runnable {
     protected int frameNo;
     protected double delta;
     
-    private boolean log;
 
     public Loop() {
     }
@@ -113,13 +112,6 @@ public class Loop implements Runnable {
 
     public double getDeltaTime() {
         return delta;
-    }
-
-    /**
-     * @param log the log to set
-     */
-    public void logGameInfo(boolean log) {
-        this.log = log;
     }
 
     

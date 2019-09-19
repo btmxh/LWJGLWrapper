@@ -8,6 +8,7 @@ package com.lwjglwrapper.opengl.shaders;
 import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL32;
 
 /**
  *
@@ -32,6 +33,25 @@ public class Shader {
         shaders.add(fragmentShader);
         
         vertexShader.attach(this);
+        fragmentShader.attach(this);
+        
+        GL20.glLinkProgram(id);
+        GL20.glValidateProgram(id);
+    }
+
+    public Shader(ShaderFile vertexShader, ShaderFile geometryShader, ShaderFile fragmentShader) {
+        this();
+        
+        ShaderFile.verifyType(vertexShader, GL20.GL_VERTEX_SHADER);
+        ShaderFile.verifyType(geometryShader, GL32.GL_GEOMETRY_SHADER);
+        ShaderFile.verifyType(fragmentShader, GL20.GL_FRAGMENT_SHADER);
+        
+        shaders.add(vertexShader);
+        shaders.add(geometryShader);
+        shaders.add(fragmentShader);
+        
+        vertexShader.attach(this);
+        geometryShader.attach(this);
         fragmentShader.attach(this);
         
         GL20.glLinkProgram(id);

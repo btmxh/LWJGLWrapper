@@ -77,7 +77,7 @@ public class NVGGraphics {
 
     public void line(float x1, float y1, float x2, float y2) {
         beginPath();
-        NanoVG.nvgMoveTo(nanoVGID, x1, x2);
+        NanoVG.nvgMoveTo(nanoVGID, x1, y1);
         NanoVG.nvgLineTo(nanoVGID, x2, y2);
     }
 
@@ -278,7 +278,9 @@ public class NVGGraphics {
     }
     
     public int textBoxLines(String text, float width, int maxLines) {
-        return NanoVG.nvgTextBreakLines(nanoVGID, text, width, NVGTextRow.create(maxLines));
+        NVGTextRow.Buffer buffer = NVGTextRow.create(maxLines);
+        int lines = NanoVG.nvgTextBreakLines(nanoVGID, text, width, buffer);
+        return lines;
     }
 
     public void textSize(float size) {

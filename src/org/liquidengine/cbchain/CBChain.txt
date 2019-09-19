@@ -1,0 +1,1 @@
+org.liquidengine.cbchain and its subpackages are part of the CBChain Library by SpinyOwl on https://github.com/SpinyOwl/cbchain

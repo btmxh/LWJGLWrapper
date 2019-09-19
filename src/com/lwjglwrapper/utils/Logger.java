@@ -5,6 +5,10 @@
  */
 package com.lwjglwrapper.utils;
 
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  *
  * @author Welcome
@@ -26,5 +30,9 @@ public class Logger {
     
     public static void log(Object tag, Object message) {
         log("[" + tag + "] " + message);
+    }
+    
+    public static void logln(Object... objs) {
+        logln(String.join("\t", Stream.of(objs).map(Objects::toString).collect(Collectors.toList())));
     }
 }

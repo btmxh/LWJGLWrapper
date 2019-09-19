@@ -60,7 +60,7 @@ public class OBJLoader {
         float[] position = ObjData.getVerticesArray(obj);
         float[] texCoord = ObjData.getTexCoordsArray(obj, 2, flipY);
         float[] normals = ObjData.getNormalsArray(obj);
-        int[] indices = ObjData.getFaceNormalIndicesArray(obj);
+        int[] indices = ObjData.getFaceVertexIndicesArray(obj);
         
         VAO vao = new VAO();
         vao.bind();

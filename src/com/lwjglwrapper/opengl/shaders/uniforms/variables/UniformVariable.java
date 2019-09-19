@@ -6,6 +6,7 @@
 package com.lwjglwrapper.opengl.shaders.uniforms.variables;
 
 import com.lwjglwrapper.opengl.shaders.Shader;
+import com.lwjglwrapper.utils.Logger;
 
 /**
  *
@@ -17,6 +18,9 @@ public abstract class UniformVariable<T> {
 
     public UniformVariable(Shader shader, String variableName) {
         location = shader.getUniformLocation(variableName);
+        if(location == -1) {
+            Logger.logln("Uniform variable " + variableName + " is unused or not in shader");
+        }
     }
     
     public abstract void load(T value);

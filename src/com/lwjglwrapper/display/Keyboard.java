@@ -9,6 +9,9 @@ import com.lwjglwrapper.LWJGL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.IntStream;
+import org.liquidengine.cbchain.impl.ChainCharCallback;
+import org.liquidengine.cbchain.impl.ChainCharModsCallback;
+import org.liquidengine.cbchain.impl.ChainKeyCallback;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCharCallbackI;
 import org.lwjgl.glfw.GLFWCharModsCallbackI;
@@ -20,17 +23,20 @@ import org.lwjgl.glfw.GLFWKeyCallbackI;
  */
 public class Keyboard {
 
-    GLFWCharCallbackI charCallback;
-    GLFWCharModsCallbackI charModsCallback;
-    GLFWKeyCallbackI keyCallback;
+    ChainCharCallback charCallback;
+    ChainCharModsCallback charModsCallback;
+    ChainKeyCallback keyCallback;
 
     public Keyboard() {
         keyStates = new boolean[GLFW.GLFW_KEY_LAST + 1];
         lastKeyStates = new boolean[GLFW.GLFW_KEY_LAST + 1];
         
-        this.charCallback = (winID, codePoint) -> charAction(LWJGL.allWindows.get(winID), codePoint);
-        this.charModsCallback = (winID, codePoint, mods) -> charModsAction(LWJGL.allWindows.get(winID), codePoint, mods);
-        this.keyCallback = (winID, key, scancode, action, mods) -> keyAction(LWJGL.allWindows.get(winID), key, scancode, action, mods);
+        this.charCallback = new ChainCharCallback();
+        charCallback.add((winID, codePoint) -> charAction(LWJGL.allWindows.get(winID), codePoint));
+        this.charModsCallback = new ChainCharModsCallback();
+        charModsCallback.add((winID, codePoint, mods) -> charModsAction(LWJGL.allWindows.get(winID), codePoint, mods));
+        this.keyCallback = new ChainKeyCallback(); 
+        keyCallback.add((winID, key, scancode, action, mods) -> keyAction(LWJGL.allWindows.get(winID), key, scancode, action, mods));
     }
     
     public void charAction(Window window, int codePoint) {

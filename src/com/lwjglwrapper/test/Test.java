@@ -6,11 +6,13 @@
 package com.lwjglwrapper.test;
 
 import com.lwjglwrapper.LWJGL;
+import com.lwjglwrapper.assimp.StaticMeshesLoader;
 import com.lwjglwrapper.display.Loop;
 import com.lwjglwrapper.nanovg.NVGFont;
 import com.lwjglwrapper.openal.ALContext;
 import com.lwjglwrapper.openal.SoundBuffer;
 import com.lwjglwrapper.openal.Source;
+import com.lwjglwrapper.opengl.objects.Texture2D;
 import com.lwjglwrapper.opengl.objects.VAO;
 import com.lwjglwrapper.opengl.shaders.Shader;
 import com.lwjglwrapper.opengl.shaders.ShaderFile;
@@ -21,6 +23,8 @@ import com.lwjglwrapper.utils.OpenSimplexNoise;
 import com.lwjglwrapper.utils.cameras.FirstPersonCamera;
 import com.lwjglwrapper.utils.input.KeyBindings;
 import com.lwjglwrapper.utils.models.ModelGenerator;
+import com.lwjglwrapper.utils.models.OBJLoader;
+import com.lwjglwrapper.utils.models.objs.OBJ;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
@@ -88,8 +92,11 @@ public class Test extends Loop {
 //        
 //        b1.setOnClickListener((s, b, m) -> System.out.println(1));
 //        b2.setOnClickListener((s, b, m) -> System.out.println(2));
-        
-        vao = new ModelGenerator().meshXYZ(new OpenSimplexNoise().floatFunc(), new Vector3f(), new Vector3f(1), 10, 10);
+
+        StaticMeshesLoader.Mesh[] meshes = StaticMeshesLoader.load(Test.class, "/bunny.obj", "");
+
+        //StaticMeshesLoader.Mesh mesh = meshes[0];
+        //vao = mesh.toVAO(new VAO());
         
         font = LWJGL.graphics.createFont("res/GALS.ttf", "GALS");
     }
@@ -124,11 +131,11 @@ public class Test extends Loop {
         ModelGenerator gen = new ModelGenerator();
         shader.bind();
         
-        vao.bindAll();
-        modelMatrix.load(new Matrix4f());
-        projectionViewMatrix.load(camera.getCombinedMatrix());
-        vao.renderElement(GL11.GL_TRIANGLE_STRIP, 0, VAO.RENDER_ALL);
-        vao.unbindByLastBind();
+//        vao.bindAll();
+//        modelMatrix.load(new Matrix4f());
+//        projectionViewMatrix.load(camera.getCombinedMatrix());
+//        vao.renderElement(GL11.GL_TRIANGLE_STRIP, 0, VAO.RENDER_ALL);
+//        vao.unbindByLastBind();
         
         shader.unbind();
         

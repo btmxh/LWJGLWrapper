@@ -48,9 +48,19 @@ public class ShaderFile {
         return new ShaderFile(sourceCode, shaderType);
     }
     
+    @Deprecated
     public static ShaderFile fromResource(String resPath, int shaderType) {
         try {
             return new ShaderFile(Utils.loadResourceAsString(resPath), shaderType);
+        } catch (IOException ex) {
+            Logger.getLogger(ShaderFile.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public static ShaderFile fromResource(Class classLoader, String resPath, int shaderType) {
+        try {
+            return new ShaderFile(Utils.loadResourceAsString(classLoader, resPath), shaderType);
         } catch (IOException ex) {
             Logger.getLogger(ShaderFile.class.getName()).log(Level.SEVERE, null, ex);
         }

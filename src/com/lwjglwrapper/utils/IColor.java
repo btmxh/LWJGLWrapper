@@ -6,6 +6,7 @@ import com.lwjglwrapper.utils.math.MathUtils;
 import java.awt.Color;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.lwjgl.assimp.AIColor4D;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NanoVG;
 
@@ -307,7 +308,7 @@ public class IColor implements Paint{
     public static final IColor YELLOW = new IColor(1.0f, 1.0f, 0.0f);
     
     public static final IColor YELLOWGREEN = new IColor(0.6039216f, 0.8039216f, 0.19607843f);
-    
+
     public final float r, g, b, a;
 
     public IColor(float r, float g, float b, float a) {
@@ -384,6 +385,11 @@ public class IColor implements Paint{
     public static IColor vec4(Vector4f vec4) {
         return new IColor(vec4.x, vec4.y, vec4.z, vec4.w);
     }
+    
+    public static IColor assimp(AIColor4D assimpColor) {
+        return new IColor(assimpColor.r(), assimpColor.g(), assimpColor.b(), assimpColor.a());
+    }
+    
 
     @Override
     public void fill(long nvgID) {

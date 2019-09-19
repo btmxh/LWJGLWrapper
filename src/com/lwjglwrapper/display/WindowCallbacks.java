@@ -7,6 +7,7 @@ package com.lwjglwrapper.display;
 
 import com.lwjglwrapper.LWJGL;
 import java.util.Arrays;
+import org.liquidengine.cbchain.impl.*;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWDropCallbackI;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -28,33 +29,56 @@ import org.lwjgl.glfw.GLFWWindowSizeCallbackI;
  */
 public class WindowCallbacks {
 
-    
-    
     public static final int WINDOW_ICONIFIED = 0, WINDOW_FOCUSED = 1, WINDOW_MAXIMIZED = 2;
 
-    
-    GLFWDropCallbackI drop = (winID, count, names) -> {
-        String[] paths = new String[count];
-        for (int i = 0; i < count; i++) {
-            paths[i] = GLFWDropCallback.getName(names, i);
-        }
+    ChainDropCallback drop;
+    ChainErrorCallback error;
+    ChainFramebufferSizeCallback framebuffer;
+    ChainMonitorCallback monitor;
+    ChainWindowCloseCallback windowClose;
+    ChainWindowContentScaleCallback windowContentScale;
+    ChainWindowFocusCallback windowFocus;
+    ChainWindowIconifyCallback windowIconify;
+    ChainWindowMaximizeCallback windowMaximize;
+    ChainWindowPosCallback position;
+    ChainWindowRefreshCallback refresh;
+    ChainWindowSizeCallback size;
 
-        dropFiles(LWJGL.allWindows.get(winID), paths);
-    };
-    GLFWErrorCallbackI error = (error, description) -> error(error, GLFWErrorCallback.getDescription(description));
-    GLFWFramebufferSizeCallbackI framebuffer = (winID, width, height) -> framebufferSizeChanged(LWJGL.allWindows.get(winID), width, height);
-    GLFWMonitorCallbackI monitor = (monitor, event) -> monitorChanged(monitor, event);
-    GLFWWindowCloseCallbackI windowClose = (winID) -> windowOnClose(LWJGL.allWindows.get(winID));
-    GLFWWindowContentScaleCallbackI windowContentScale = (winID, xscale, yscale) -> windowContentScale(LWJGL.allWindows.get(winID), xscale, yscale);
-    GLFWWindowFocusCallbackI windowFocus = (winID, focused) -> windowFocus(LWJGL.allWindows.get(winID), focused);
-    GLFWWindowIconifyCallbackI windowIconify = (winID, iconified) -> windowIconified(LWJGL.allWindows.get(winID), iconified);
-    GLFWWindowMaximizeCallbackI windowMaximize = (winID, maximized) -> windowMaximized(LWJGL.allWindows.get(winID), maximized);
-    GLFWWindowPosCallbackI position = (winID, x, y) -> windowPosition(LWJGL.allWindows.get(winID), x, y);
-    GLFWWindowRefreshCallbackI refresh = (winID) -> refreshWindow(LWJGL.allWindows.get(winID));
-    GLFWWindowSizeCallbackI size = (winID, width, height) -> windowSize(LWJGL.allWindows.get(winID), width, height);
+    public WindowCallbacks() {
+        this.drop = new ChainDropCallback();
+        drop.add((winID, count, names) -> {
+            String[] paths = new String[count];
+            for (int i = 0; i < count; i++) {
+                paths[i] = GLFWDropCallback.getName(names, i);
+            }
 
-    
-    
+            dropFiles(LWJGL.allWindows.get(winID), paths);
+        });
+        this.error = new ChainErrorCallback();
+        error.add((error, description) -> error(error, GLFWErrorCallback.getDescription(description)));
+        this.framebuffer = new ChainFramebufferSizeCallback();
+        framebuffer.add((winID, width, height) -> framebufferSizeChanged(LWJGL.allWindows.get(winID), width, height));
+        this.monitor = new ChainMonitorCallback();
+        monitor.add((monitor, event) -> monitorChanged(monitor, event));
+        this.windowClose = new ChainWindowCloseCallback();
+        windowClose.add((winID) -> windowOnClose(LWJGL.allWindows.get(winID)));
+        this.windowContentScale = new ChainWindowContentScaleCallback();
+        windowContentScale.add((winID, xscale, yscale) -> windowContentScale(LWJGL.allWindows.get(winID), xscale, yscale));
+        this.windowFocus = new ChainWindowFocusCallback();
+        windowFocus.add((winID, focused) -> windowFocus(LWJGL.allWindows.get(winID), focused));
+        this.windowIconify = new ChainWindowIconifyCallback();
+        windowIconify.add((winID, iconified) -> windowIconified(LWJGL.allWindows.get(winID), iconified));
+        this.windowMaximize = new ChainWindowMaximizeCallback();
+        windowMaximize.add((winID, maximized) -> windowMaximized(LWJGL.allWindows.get(winID), maximized));
+        this.position = new ChainWindowPosCallback();
+        position.add((winID, x, y) -> windowPosition(LWJGL.allWindows.get(winID), x, y));
+        this.refresh = new ChainWindowRefreshCallback();
+        refresh.add((winID) -> refreshWindow(LWJGL.allWindows.get(winID)));
+        this.size = new ChainWindowSizeCallback();
+        size.add((winID, width, height) -> windowSize(LWJGL.allWindows.get(winID), width, height));
+
+    }
+
     public void dropFiles(Window window, String[] paths) {
 //        System.out.println(Arrays.toString(paths));
     }
@@ -94,9 +118,9 @@ public class WindowCallbacks {
     }
 
     public void windowSize(Window window, int width, int height) {
-        if(window != null)  window.setSizeVariables(width, height);
+        if (window != null) {
+            window.setSizeVariables(width, height);
+        }
     }
-    
-    
-    
+
 }

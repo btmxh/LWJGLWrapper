@@ -78,8 +78,20 @@ public class Utils {
         return newBuffer;
     }
 
+    @Deprecated
     public static String loadResourceAsString(String resPath) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(Utils.class.getResourceAsStream(resPath)));
+        String line;
+        StringBuilder content = new StringBuilder();
+        while ((line = reader.readLine()) != null) {
+            content.append("\n").append(line);
+        }
+
+        return content.substring(1);
+    }
+
+    public static String loadResourceAsString(Class classLoader, String resPath) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(classLoader.getResourceAsStream(resPath)));
         String line;
         StringBuilder content = new StringBuilder();
         while ((line = reader.readLine()) != null) {

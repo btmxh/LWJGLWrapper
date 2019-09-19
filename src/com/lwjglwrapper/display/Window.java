@@ -96,6 +96,8 @@ public class Window {
     private GLCapabilities glCapabilities;
     private boolean fullScreen;
     
+    private Viewport viewport;
+    
     /**
      * Constructor for a window with size 1280x720, title "Game", FPS cap is 60. After calling the constructor, you must call the {@link create() create()} method in order to create the GLFW Window
      */
@@ -320,7 +322,7 @@ public class Window {
     }
 
     public NVGGraphics createNVGGraphics() {
-        nvgGraphics = new NVGGraphics();
+        nvgGraphics = new NVGGraphics(this);
         if(LWJGL.window == this) {
             LWJGL.graphics = nvgGraphics;
         }
@@ -500,5 +502,16 @@ public class Window {
             GLFW.glfwSetWindowIcon(winID, icons);
         }        
     }
+
+    public void setViewport(Viewport viewport) {
+        this.viewport = viewport;
+        viewport.updateViewport();   
+    }
+
+    public Viewport getViewport() {
+        return viewport;
+    }
+    
+    
     
 }

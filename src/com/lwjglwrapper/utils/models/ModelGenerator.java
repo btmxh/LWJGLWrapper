@@ -10,15 +10,12 @@ import com.lwjglwrapper.opengl.objects.TextureCube;
 import com.lwjglwrapper.opengl.objects.TexturedVAO;
 import com.lwjglwrapper.utils.IColor;
 import com.lwjglwrapper.opengl.objects.VAO;
-import com.lwjglwrapper.utils.math.FloatMath;
 import com.lwjglwrapper.utils.models.objs.OBJ;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.joml.Vector3f;
 
 /**
@@ -85,7 +82,7 @@ public class ModelGenerator {
     
     public VAO rect3d(float x, float y, float w, float h, float commonZ) {
         VAOBuilder builder = new VAOBuilder(1, 0);
-        builder.createFloatBuffer(8, 0, 2);
+        builder.createFloatBuffer(12, 0, 3);
         builder.createIndexBuffer(6);
         builder.put(loader.positionAttrib, x, y, commonZ);
         builder.put(loader.positionAttrib, x + w, y, commonZ);
@@ -104,19 +101,17 @@ public class ModelGenerator {
         if (height < 0) {
             height = heights[0].length - 1;
         }
-        return meshXYZ((x, z) -> heights[x][z], offset, scale, width, height);
-    }
-
-    public VAO meshXYZ(BiFunction<Integer, Integer, Float> heightFunction,
-            Vector3f offset, Vector3f scale, int width, int height) {
         int horizontalVertexCount = width + 1;
         int verticalVertexCount = height + 1;
-        VAOBuilder builder = new VAOBuilder(1, 0);
+        VAOBuilder builder = new VAOBuilder(2, 0);
         builder.createFloatBuffer(horizontalVertexCount * verticalVertexCount * 3, 0, 3);
+        builder.createFloatBuffer(horizontalVertexCount * verticalVertexCount * 3, 1, 3);
+        
         builder.createIndexBuffer(height * (2 * horizontalVertexCount + 1));
         for (int z = 0; z < verticalVertexCount; z++) {
             for (int x = 0; x < horizontalVertexCount; x++) {
-                builder.put(0, new Vector3f(offset).add(scale.mul(x, heightFunction.apply(x, z), z, new Vector3f())));
+                builder.put(0, new Vector3f(offset).add(scale.mul(x, heights[x][z], z, new Vector3f())));
+                builder.put(1, calcNormals(x, z, heights));
             }
         }
         for (int z = 0; z < height; z++) {
@@ -126,5 +121,31 @@ public class ModelGenerator {
             builder.putIndex(-1);
         }
         return builder.createVAO();
+    }
+
+    public VAO meshXYZ(BiFunction<Integer, Integer, Float> heightFunction,
+            Vector3f offset, Vector3f scale, int width, int height) {
+        //Must Enable GL_PRIMITIVE_RESTART_FIXED_INDEX to render properly
+        int horizontalVertexCount = width + 1;
+        int verticalVertexCount = height + 1;
+        float[][] heights = new float[horizontalVertexCount][verticalVertexCount];
+        for(int x = 0; x < horizontalVertexCount; x++) {
+            for (int z = 0; z < verticalVertexCount; z++) {
+                heights[x][z] = heightFunction.apply(x, z) * scale.y;
+            }
+        }
+        scale.y = 1;
+        return meshXYZ(heights, offset, scale, width, height);
+    }
+
+    private Vector3f calcNormals(int x, int z, float[][] heights) {
+        return new Vector3f(getHeight(x-1, z, heights) - getHeight(x+1, z, heights),
+                2f, getHeight(x, z-1, heights) - getHeight(x, z+1, heights)).normalize();
+    }
+    
+    private float getHeight(int x, int z, float[][] heights) {
+        if(x < 0 | x >= heights.length | z < 0 | z >= heights[0].length) {
+            return 0f;
+        } else return heights[x][z];
     }
 }
