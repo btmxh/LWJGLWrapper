@@ -29,6 +29,12 @@ import org.lwjgl.system.MemoryStack;
  */
 public class Window {
 
+    public static void init() {
+        if (!GLFW.glfwInit()) {
+            throw new GLFWException("GLFW initialized unsucessfully");
+        }
+    }
+
     /**
      * the GLFW window id
      */
@@ -128,20 +134,16 @@ public class Window {
      * Create a GLFW window by the parameters specified in the constructor
      */
     public void create() {
-        if (!GLFW.glfwInit()) {
-            throw new GLFWException("GLFW initialized unsucessfully");
-        }
-
-        
-        
+        viewport = new Viewport(this);
         configWindow();
+        long monitor = 0;
         if(fullScreen) {
-            long monitor = GLFW.glfwGetPrimaryMonitor();
+            monitor = GLFW.glfwGetPrimaryMonitor();
             GLFWVidMode mode = GLFW.glfwGetVideoMode(monitor);
-            winID = GLFW.glfwCreateWindow(mode.width(), mode.height(), title, monitor, 0);
-        } else {
-            winID = GLFW.glfwCreateWindow(width, height, title, 0, 0);
+            width = mode.width();
+            height = mode.height();
         }
+        winID = GLFW.glfwCreateWindow(width, height, title, monitor, 0);
         if (winID == 0) {
             throw new GLFWException("Window created unsucessfully");
         }
@@ -149,26 +151,26 @@ public class Window {
         LWJGL.allWindows.put(winID, this);
         
 
-        GLFW.glfwSetCharCallback(winID, keyboard.charCallback);
-        GLFW.glfwSetCharModsCallback(winID, keyboard.charModsCallback);
-        GLFW.glfwSetCursorEnterCallback(winID, mouse.enterCallback);
-        GLFW.glfwSetCursorPosCallback(winID, mouse.mousePositionCallback);
-        GLFW.glfwSetDropCallback(winID, windowCallbacks.drop);
-        GLFW.glfwSetErrorCallback(windowCallbacks.error);
-        GLFW.glfwSetFramebufferSizeCallback(winID, windowCallbacks.framebuffer);
-        GLFW.glfwSetMonitorCallback(windowCallbacks.monitor);
+        GLFW.glfwSetCharCallback(winID, keyboard.getCharCallback());
+        GLFW.glfwSetCharModsCallback(winID, keyboard.getCharModsCallback());
+        GLFW.glfwSetCursorEnterCallback(winID, mouse.getEnterCallback());
+        GLFW.glfwSetCursorPosCallback(winID, mouse.getMousePositionCallback());
+        GLFW.glfwSetDropCallback(winID, windowCallbacks.getDropCallback());
+        GLFW.glfwSetErrorCallback(windowCallbacks.getErrorCallback());
+        GLFW.glfwSetFramebufferSizeCallback(winID, windowCallbacks.getFramebufferCallback());
+        GLFW.glfwSetMonitorCallback(windowCallbacks.getMonitorCallback());
         GLFW.glfwSetJoystickCallback(joystick);
-        GLFW.glfwSetKeyCallback(winID, keyboard.keyCallback);
-        GLFW.glfwSetMouseButtonCallback(winID, mouse.buttonCallback);
-        GLFW.glfwSetScrollCallback(winID, mouse.scrollCallback);
-        GLFW.glfwSetWindowCloseCallback(winID, windowCallbacks.windowClose);
-        GLFW.glfwSetWindowContentScaleCallback(winID, windowCallbacks.windowContentScale);
-        GLFW.glfwSetWindowFocusCallback(winID, windowCallbacks.windowFocus);
-        GLFW.glfwSetWindowIconifyCallback(winID, windowCallbacks.windowIconify);
-        GLFW.glfwSetWindowMaximizeCallback(winID, windowCallbacks.windowMaximize);
-        GLFW.glfwSetWindowPosCallback(winID, windowCallbacks.position);
-        GLFW.glfwSetWindowRefreshCallback(winID, windowCallbacks.refresh);
-        GLFW.glfwSetWindowSizeCallback(winID, windowCallbacks.size);
+        GLFW.glfwSetKeyCallback(winID, keyboard.getKeyCallback());
+        GLFW.glfwSetMouseButtonCallback(winID, mouse.getButtonCallback());
+        GLFW.glfwSetScrollCallback(winID, mouse.getScrollCallback());
+        GLFW.glfwSetWindowCloseCallback(winID, windowCallbacks.getWindowCloseCallback());
+        GLFW.glfwSetWindowContentScaleCallback(winID, windowCallbacks.getWindowContentScaleCallback());
+        GLFW.glfwSetWindowFocusCallback(winID, windowCallbacks.getWindowFocusCallback());
+        GLFW.glfwSetWindowIconifyCallback(winID, windowCallbacks.getWindowIconifyCallback());
+        GLFW.glfwSetWindowMaximizeCallback(winID, windowCallbacks.getWindowMaximizeCallback());
+        GLFW.glfwSetWindowPosCallback(winID, windowCallbacks.getPositionCallback());
+        GLFW.glfwSetWindowRefreshCallback(winID, windowCallbacks.getRefreshCallback());
+        GLFW.glfwSetWindowSizeCallback(winID, windowCallbacks.getSizeCallback());
         
         GLFW.glfwMakeContextCurrent(winID);
         glCapabilities = GL.createCapabilities(true);
@@ -301,13 +303,17 @@ public class Window {
 
     public void setSize(int width, int height) {
         setSizeVariables(width, height);
-        GLFW.glfwSetWindowSize(winID, width, height);
+        if(glCapabilities != null) {
+            GLFW.glfwSetWindowSize(winID, width, height);
+        }
     }
     
     void setSizeVariables(int width, int height) {
         this.width = width;
         this.height = height;
-        GL11.glViewport(0, 0, width, height);
+        if(viewport != null) {
+            viewport.updateViewport();
+        }
         if(nvgGraphics != null) {
             nvgGraphics.updateSize(width, height);
         }

@@ -13,7 +13,7 @@ import org.lwjgl.nanovg.NanoVG;
  * a simple wrapper for NVGPaint
  * @author Welcome
  */
-public class NanoVGPaint implements Paint{
+public abstract class NanoVGPaint extends Paint{
 
     protected NVGPaint nativePaint;
     
@@ -38,6 +38,10 @@ public class NanoVGPaint implements Paint{
         NanoVG.nvgFillPaint(nvgID, nativePaint);
     }
     
+    protected abstract void resetPaint();
     
+    public void dispose() {
+        nativePaint.free();
+    }
     
 }

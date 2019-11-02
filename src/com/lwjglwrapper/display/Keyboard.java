@@ -23,9 +23,9 @@ import org.lwjgl.glfw.GLFWKeyCallbackI;
  */
 public class Keyboard {
 
-    ChainCharCallback charCallback;
-    ChainCharModsCallback charModsCallback;
-    ChainKeyCallback keyCallback;
+    private ChainCharCallback charCallback;
+    private ChainCharModsCallback charModsCallback;
+    private ChainKeyCallback keyCallback;
 
     public Keyboard() {
         keyStates = new boolean[GLFW.GLFW_KEY_LAST + 1];
@@ -75,4 +75,25 @@ public class Keyboard {
     public boolean allKeyDown(Collection<Integer> keys)     {  return keys.stream().allMatch(this::keyDown); }
     public boolean allKeyPressed(Collection<Integer> keys)  {  return keys.stream().allMatch(this::keyPressed); }
     public boolean allKeyReleased(Collection<Integer> keys) {  return keys.stream().allMatch(this::keyReleased); }
+
+    /**
+     * @return the charCallback
+     */
+    public ChainCharCallback getCharCallback() {
+        return charCallback;
+    }
+
+    /**
+     * @return the charModsCallback
+     */
+    public ChainCharModsCallback getCharModsCallback() {
+        return charModsCallback;
+    }
+
+    /**
+     * @return the keyCallback
+     */
+    public ChainKeyCallback getKeyCallback() {
+        return keyCallback;
+    }
 }

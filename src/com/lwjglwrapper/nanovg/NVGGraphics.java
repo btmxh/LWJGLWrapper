@@ -8,15 +8,20 @@ package com.lwjglwrapper.nanovg;
 import com.lwjglwrapper.LWJGL;
 import com.lwjglwrapper.display.Window;
 import com.lwjglwrapper.nanovg.paint.BoxGradient;
+import com.lwjglwrapper.nanovg.paint.types.FillPaint;
+import com.lwjglwrapper.nanovg.paint.ImagePaint;
 import com.lwjglwrapper.nanovg.paint.LinearGradient;
 import com.lwjglwrapper.utils.geom.Shape;
-import com.lwjglwrapper.nanovg.paint.NanoVGPaint;
 import com.lwjglwrapper.nanovg.paint.Paint;
 import com.lwjglwrapper.nanovg.paint.RadialGradient;
-import com.lwjglwrapper.utils.IColor;
+import com.lwjglwrapper.nanovg.paint.types.StrokePaint;
+import com.lwjglwrapper.nanovg.paint.types.TextPaint;
+import com.lwjglwrapper.utils.colors.AbstractColor;
 import com.lwjglwrapper.utils.Utils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Stack;
+import org.joml.Matrix3f;
 import org.joml.Rectanglef;
 import org.joml.Vector2f;
 import org.lwjgl.nanovg.NVGLUFramebuffer;
@@ -24,7 +29,6 @@ import org.lwjgl.nanovg.NVGPaint;
 import org.lwjgl.nanovg.NVGTextRow;
 import org.lwjgl.nanovg.NanoVG;
 import org.lwjgl.nanovg.NanoVGGL3;
-import static org.lwjgl.nanovg.NanoVG.*;
 
 /**
  *
@@ -33,12 +37,16 @@ import static org.lwjgl.nanovg.NanoVG.*;
 public class NVGGraphics {
     private long nanoVGID;
     private int width, height, pixelRatio;
+    private Stack<TransformationState> transformationStates;
+    private Stack<AlphaState> alphaStates;
 
     public NVGGraphics(Window window) {
         nanoVGID = NanoVGGL3.nvgCreate(NanoVGGL3.NVG_ANTIALIAS | NanoVGGL3.NVG_DEBUG | NanoVGGL3.NVG_STENCIL_STROKES);
         this.width = window.getWidth();
         this.height = window.getHeight();
         this.pixelRatio = 1;
+        transformationStates = new Stack<>();
+        alphaStates = new Stack<>();
     }
     
     public NVGGraphics() {
@@ -47,24 +55,34 @@ public class NVGGraphics {
 
     public void translate(float x, float y) {
         NanoVG.nvgTranslate(nanoVGID, x, y);
+        getCurrentState().translate(new Vector2f(x, y));
     }
     
     public void translate(Vector2f vector) {
-        NanoVG.nvgTranslate(nanoVGID, vector.x, vector.y);
+        translate(vector.x, vector.y);
     }
 
     public void scale(float x, float y) {
         NanoVG.nvgScale(nanoVGID, x, y);
-    }
-
-    public void fill(Paint p) {
-        if(p == null)   return;
-        p.fill(nanoVGID);
+        getCurrentState().scale(new Vector2f(x, y));
     }
     
-    public void stroke(Paint p) {
+    public void pushAlpha() {
+        alphaStates.push(alphaStates.peek().clone());
+    }
+    
+    public void popAlpha() {
+        alphaStates.pop();
+    }
+
+    public void fill(FillPaint p) {
         if(p == null)   return;
-        p.stroke(nanoVGID);
+        p.fmulAlpha(alphaStates.peek().alpha).fill(nanoVGID);
+    }
+    
+    public void stroke(StrokePaint p) {
+        if(p == null)   return;
+        p.smulAlpha(alphaStates.peek().alpha).stroke(nanoVGID);
     }
 
     public void beginPath() {
@@ -73,6 +91,7 @@ public class NVGGraphics {
 
     public void rotate(float angdeg) {
         NanoVG.nvgRotate(nanoVGID, NanoVG.nvgDegToRad(angdeg));
+        getCurrentState().rotate(-angdeg);
     }
 
     public void line(float x1, float y1, float x2, float y2) {
@@ -148,48 +167,51 @@ public class NVGGraphics {
     }
 
     public NVGImage createNanoVGImage(String path, int flags) {
-//        int flags = ((mipmap ? 1 : 0) * NanoVG.NVG_IMAGE_GENERATE_MIPMAPS)
-//                | ((repeatX ? 1 : 0) * NanoVG.NVG_IMAGE_REPEATX)
-//                | ((repeatY ? 1 : 0) * NanoVG.NVG_IMAGE_REPEATY)
-//                | ((preMultiplyAlpha ? 1 : 0) * NanoVG.NVG_IMAGE_PREMULTIPLIED)
-//                | ((flipY ? 1 : 0) * NanoVG.NVG_IMAGE_FLIPY)
-//                | ((nearest ? 1 : 0) * NanoVG.NVG_IMAGE_NEAREST);
         int id = NanoVG.nvgCreateImage(nanoVGID, path, flags);
+        NVGImage image = new NVGImage(nanoVGID, id);
+        return image;
+    }
+    
+    public NVGImage createNanoVGImageFromResource(ByteBuffer buffer, int flags) {
+        int id = NanoVG.nvgCreateImageMem(nanoVGID, flags, buffer);
         NVGImage image = new NVGImage(nanoVGID, id);
         return image;
     }
 
     public void image(NVGImage img, float x, float y) {
-        image(img, x, y, new IColor(0, 0, 0, 0));
+        image(img, x, y, img.getWidth(), img.getHeight());
     }
 
     public void image(NVGImage img, float x, float y, float width, float height) {
-        image(img, x, y, width, height, new IColor(0, 0, 0, 0));
+        rect(x, y, width, height);
+        fill(img, x, y, width, height, 0, 1);
     }
 
-    public void image(NVGImage img, float x, float y, IColor bgcolor) {
+    public void image(NVGImage img, float x, float y, Paint bgcolor) {
         image(img, x, y, img.getWidth(), img.getHeight(), bgcolor);
     }
 
-    public void image(NVGImage img, float x, float y, float width, float height, IColor bgcolor) {
-        image(img, x, y, width, height, 0, 0, img.getWidth(), img.getHeight(), bgcolor);
+    public void image(NVGImage img, float x, float y, float width, float height, Paint bgcolor) {
+        rect(x, y, width, height);
+        fill(bgcolor);
+        image(img, x, y, width, height);
     }
 
-    public void image(NVGImage img, float dx, float dy, float dwidth, float dheight,
-            float sx, float sy, float swidth, float sheight) {
-        image(img, dx, dy, dwidth, dheight, sx, sy, swidth, sheight, new IColor(0, 0, 0, 0));
-    }
-
-    public void image(NVGImage img, float dx, float dy, float dwidth, float dheight,
-            float sx, float sy, float swidth, float sheight, IColor bgcolor) {
-
-        //sx = img.getWidth() 
-        NVGPaint paint = NVGPaint.create();
-        NanoVG.nvgImagePattern(nanoVGID, dx - sx, dx - sy, swidth - sx, sheight - sy, 0, img.id, 1, paint);
-        rect(dx, dy, dwidth, dheight);
-        NanoVG.nvgFillPaint(nanoVGID, paint);
-        NanoVG.nvgFill(nanoVGID);
-    }
+//    public void image(NVGImage img, float dx, float dy, float dwidth, float dheight,
+//            float sx, float sy, float swidth, float sheight) {
+//        image(img, dx, dy, dwidth, dheight, sx, sy, swidth, sheight, new AbstractColor(0, 0, 0, 0));
+//    }
+//
+//    public void image(NVGImage img, float dx, float dy, float dwidth, float dheight,
+//            float sx, float sy, float swidth, float sheight, Paint bgcolor) {
+//
+//        //sx = img.getWidth() 
+//        NVGPaint paint = NVGPaint.create();
+//        NanoVG.nvgImagePattern(nanoVGID, dx - sx, dx - sy, swidth - sx, sheight - sy, 0, img.id, 1, paint);
+//        rect(dx, dy, dwidth, dheight);
+//        NanoVG.nvgFillPaint(nanoVGID, paint);
+//        NanoVG.nvgFill(nanoVGID);
+//    }
 
     public void fill(NVGImage img, float x, float y, float width, float height, float angle, float alpha) {
         NVGPaint paint = NVGPaint.create();
@@ -208,6 +230,10 @@ public class NVGGraphics {
 
     public void begin() {
         NanoVG.nvgBeginFrame(nanoVGID, width, height, pixelRatio);
+        transformationStates.clear();
+        transformationStates.push(new TransformationState(new Matrix3f()));
+        alphaStates.clear();
+        alphaStates.push(new AlphaState(1f));
     }
 
     public void end() {
@@ -223,40 +249,44 @@ public class NVGGraphics {
         NanoVG.nvgCircle(nanoVGID, x, y, r);
     }
 
-    public LinearGradient linearPaint(Rectanglef bounds, IColor icol, IColor ocol) {
+    public LinearGradient linearPaint(Rectanglef bounds, AbstractColor icol, AbstractColor ocol) {
         return new LinearGradient(nanoVGID, bounds.minX, bounds.minY, bounds.maxX, bounds.maxY,
                 icol, ocol);
     }
 
-    public LinearGradient linearPaintTLBR(Shape shape, IColor icol, IColor ocol) {
+    public LinearGradient linearPaintTLBR(Shape shape, AbstractColor icol, AbstractColor ocol) {
         return linearPaint(shape.boundBox(), icol, ocol);
     }
 
-    public LinearGradient linearPaintBLTR(Rectanglef bounds, IColor icol, IColor ocol) {
+    public LinearGradient linearPaintBLTR(Rectanglef bounds, AbstractColor icol, AbstractColor ocol) {
         return new LinearGradient(nanoVGID, bounds.minX, bounds.maxY, bounds.maxX, bounds.minY, icol, ocol);
     }
 
-    public LinearGradient linearPaintBLTR(Shape shape, IColor icol, IColor ocol) {
+    public LinearGradient linearPaintBLTR(Shape shape, AbstractColor icol, AbstractColor ocol) {
         return linearPaintBLTR(shape.boundBox(), icol, ocol);
     }
 
-    public LinearGradient linearPaintCLCR(Rectanglef bounds, IColor icol, IColor ocol) {
+    public LinearGradient linearPaintCLCR(Rectanglef bounds, AbstractColor icol, AbstractColor ocol) {
         return new LinearGradient(nanoVGID, bounds.minX, bounds.maxY, bounds.maxX, bounds.maxY, icol, ocol);
     }
 
-    public LinearGradient linearPaintCLCR(Shape shape, IColor icol, IColor ocol) {
+    public LinearGradient linearPaintCLCR(Shape shape, AbstractColor icol, AbstractColor ocol) {
         return linearPaintBLTR(shape.boundBox(), icol, ocol);
     }
 
-    public RadialGradient radialPaint(float cx, float cy, IColor icol, float ir, IColor ocol, float or) {
-        return new RadialGradient(nanoVGID, cx, cy, ir, or, icol, ocol);
-    }
+//    public RadialGradient radialPaint(float cx, float cy, AbstractColor icol, float ir, AbstractColor ocol, float or) {
+//        return new RadialGradient(nanoVGID, cx, cy, ir, or, icol, ocol);
+//    }
     
-    public BoxGradient boxGradient(Rectanglef rect, float radius, float feather, IColor icol, IColor ocol) {
+    public BoxGradient boxGradient(Rectanglef rect, float radius, float feather, AbstractColor icol, AbstractColor ocol) {
         return new BoxGradient(nanoVGID, rect.minX, rect.minY, rect.maxX - rect.minX, rect.maxY - rect.minY, radius, feather, icol, ocol);
     }
+    
+    public ImagePaint imagePaint(NVGImage image, Rectanglef bounds, float angle, float alpha) {
+        return new ImagePaint(nanoVGID, bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY, image, angle, alpha);
+    }
 
-//    public NVGPaint monoColorPaint(IColor color) {
+//    public NVGPaint monoColorPaint(AbstractColor color) {
 //        return linearPaint(new Rectangle2D.Float(0, 0, 100, 100), color, color);
 //    }
 
@@ -287,20 +317,22 @@ public class NVGGraphics {
         NanoVG.nvgFontSize(nanoVGID, size);
     }
 
-    public void textPaint(Paint paint) {
-        paint.text(nanoVGID);
+    public void textPaint(TextPaint paint) {
+        paint.tmulAlpha(alphaStates.peek().alpha).text(nanoVGID);
     }
     
-//    public void textStroke(IColor color) {
+//    public void textStroke(AbstractColor color) {
 //        NanoVG.nvgStrokeColor(nanoVGID, color.toNanoVGColor());
 //    }
 
     public void push() {
         NanoVG.nvgSave(nanoVGID);
+        transformationStates.push(getCurrentState().clone());
     }
 
     public void pop() {
         NanoVG.nvgRestore(nanoVGID);
+        transformationStates.pop();
     }
 
     public float textLength(String text) {
@@ -357,6 +389,85 @@ public class NVGGraphics {
             throw new InternalError("fnsdklfjsdlkf");
         }
 //        return null;
+    }
+    
+    public void setScissorArea(float x, float y, float width, float height) {
+        NanoVG.nvgScissor(nanoVGID, x, y, width, height);
+    }
+
+    public void mulAlpha(float alpha) {
+        alphaStates.peek().alpha *= alpha;
+    }
+    
+    public static class TransformationState {
+        private Matrix3f transformationMatrix;
+
+        public TransformationState(Matrix3f transformationMatrix) {
+            this.transformationMatrix = transformationMatrix;
+        }
+
+        public Matrix3f getTransformationMatrix() {
+            return transformationMatrix;
+        }
+        
+        public Vector2f getTranslation() {
+            return MatrixUtils.getTranslation(transformationMatrix);
+        }
+        
+        public float getRotation() {
+            return (float) Math.toDegrees(MatrixUtils.getRotation(transformationMatrix));
+        }
+        
+        public Vector2f getScale() {
+            return MatrixUtils.getScale(transformationMatrix);
+        }
+        
+        public void translate(Vector2f translate) {
+            MatrixUtils.translate(transformationMatrix, translate);
+        }
+        
+        public void rotate(float angle) {
+            MatrixUtils.rotate(transformationMatrix, (float) Math.toRadians(angle));
+        }
+        
+        public void scale(Vector2f scale) {
+            MatrixUtils.scale(transformationMatrix, scale);
+        }
+
+        @Override
+        public TransformationState clone() {
+            return new TransformationState(new Matrix3f(transformationMatrix));
+        }
+        
+        public Matrix3f inverse() {
+            return new Matrix3f(transformationMatrix).invert();
+        }
+    }
+
+    public TransformationState getCurrentState() {
+        return transformationStates.peek();
+    }
+    
+    public void setUpText(NVGFont font, Paint paint, float size, int align) {
+        font.use();
+        textSize(size);
+        textAlign(align);
+        textPaint(paint);
+    }
+
+    public static class AlphaState {
+        private float alpha;
+
+        public AlphaState(float alpha) {
+            this.alpha = alpha;
+        }
+
+        @Override
+        public AlphaState clone() {
+            return new AlphaState(alpha);
+        }
+        
+        
     }
     
 }

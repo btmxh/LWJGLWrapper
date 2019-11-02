@@ -32,6 +32,10 @@ public class NVGImage {
         }
     }
 
+    public int getID() {
+        return id;
+    }
+    
     public int getWidth() {
         return width;
     }

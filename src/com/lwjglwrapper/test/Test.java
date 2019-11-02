@@ -6,27 +6,21 @@
 package com.lwjglwrapper.test;
 
 import com.lwjglwrapper.LWJGL;
-import com.lwjglwrapper.assimp.StaticMeshesLoader;
 import com.lwjglwrapper.display.Loop;
 import com.lwjglwrapper.nanovg.NVGFont;
 import com.lwjglwrapper.openal.ALContext;
 import com.lwjglwrapper.openal.SoundBuffer;
 import com.lwjglwrapper.openal.Source;
-import com.lwjglwrapper.opengl.objects.Texture2D;
 import com.lwjglwrapper.opengl.objects.VAO;
 import com.lwjglwrapper.opengl.shaders.Shader;
 import com.lwjglwrapper.opengl.shaders.ShaderFile;
 import com.lwjglwrapper.opengl.shaders.uniforms.variables.UMat4;
 import com.lwjglwrapper.utils.GameUtils;
-import com.lwjglwrapper.utils.IColor;
-import com.lwjglwrapper.utils.OpenSimplexNoise;
+import com.lwjglwrapper.utils.colors.AbstractColor;
 import com.lwjglwrapper.utils.cameras.FirstPersonCamera;
+import com.lwjglwrapper.utils.colors.StaticColor;
 import com.lwjglwrapper.utils.input.KeyBindings;
 import com.lwjglwrapper.utils.models.ModelGenerator;
-import com.lwjglwrapper.utils.models.OBJLoader;
-import com.lwjglwrapper.utils.models.objs.OBJ;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.nanovg.NanoVG;
 import org.lwjgl.opengl.GL11;
@@ -77,27 +71,6 @@ public class Test extends Loop {
         camera.setSpeed(1, 1, 5);
         camera.setFirstPersonCameraMode(true);
         
-//        Button b1 = new Button(window.getStage(), true);
-//        Button b2 = new Button(window.getStage(), true);
-//        
-//        b1.getShapeStates().setAll(new RoundRect(100, 100, 200, 50, 10))
-//                           .setAllStrokes(IColor.BLACK)
-//                           .setFill(new IColor(0.8f), Button.NORMAL)
-//                           .setFill(new IColor(0.6f), Button.HOVER)
-//                           .setFill(new IColor(0.5f), Button.CLICKED)
-//                           .construct(false);
-//        
-//        b2.getShapeStates().setTo(b1.getShapeStates()
-//                .setAll(new RoundRect(120, 120, 200, 50, 10))).construct(false);
-//        
-//        b1.setOnClickListener((s, b, m) -> System.out.println(1));
-//        b2.setOnClickListener((s, b, m) -> System.out.println(2));
-
-        StaticMeshesLoader.Mesh[] meshes = StaticMeshesLoader.load(Test.class, "/bunny.obj", "");
-
-        //StaticMeshesLoader.Mesh mesh = meshes[0];
-        //vao = mesh.toVAO(new VAO());
-        
         font = LWJGL.graphics.createFont("res/GALS.ttf", "GALS");
     }
 
@@ -145,8 +118,25 @@ public class Test extends Loop {
         
         font.use();
         LWJGL.graphics.textAlign(NanoVG.NVG_ALIGN_LEFT | NanoVG.NVG_ALIGN_TOP);
-        LWJGL.graphics.textPaint(IColor.WHITE);
+        LWJGL.graphics.textPaint(StaticColor.WHITE);
         LWJGL.graphics.textSize(32);
+        LWJGL.graphics.text(GameUtils.formatMem(GameUtils.getJavaHeap()) + "/" + GameUtils.formatMem(GameUtils.getMaxMemory()), 0, 0);
+        
+        LWJGL.graphics.end();
+        
+        LWJGL.graphics.begin();
+        
+        window.getStage().render();
+        
+        font.use();
+        LWJGL.graphics.textAlign(NanoVG.NVG_ALIGN_LEFT | NanoVG.NVG_ALIGN_TOP);
+        LWJGL.graphics.textPaint(StaticColor.WHITE);
+        LWJGL.graphics.textSize(32);
+        LWJGL.graphics.text(GameUtils.formatMem(GameUtils.getJavaHeap()) + "/" + GameUtils.formatMem(GameUtils.getMaxMemory()), 0, 0);
+        LWJGL.graphics.text(GameUtils.formatMem(GameUtils.getJavaHeap()) + "/" + GameUtils.formatMem(GameUtils.getMaxMemory()), 0, 0);
+        LWJGL.graphics.text(GameUtils.formatMem(GameUtils.getJavaHeap()) + "/" + GameUtils.formatMem(GameUtils.getMaxMemory()), 0, 0);
+        LWJGL.graphics.text(GameUtils.formatMem(GameUtils.getJavaHeap()) + "/" + GameUtils.formatMem(GameUtils.getMaxMemory()), 0, 0);
+        LWJGL.graphics.text(GameUtils.formatMem(GameUtils.getJavaHeap()) + "/" + GameUtils.formatMem(GameUtils.getMaxMemory()), 0, 0);
         LWJGL.graphics.text(GameUtils.formatMem(GameUtils.getJavaHeap()) + "/" + GameUtils.formatMem(GameUtils.getMaxMemory()), 0, 0);
         
         LWJGL.graphics.end();
@@ -165,8 +155,7 @@ public class Test extends Loop {
     }
     
     public static void main(String[] args) {
-//        System.out.println((2 << 31) - 1);
-        new Test().runNewThread();
+        new Test().run();
     }
 
     private static float[] normalize(float[] fs, int width, int height) {
@@ -179,7 +168,6 @@ public class Test extends Loop {
     @Override
     protected void createWindow() {
         super.createWindow();
-        window.hideCursor(true);
     }
     private boolean hideCursor = true;
     

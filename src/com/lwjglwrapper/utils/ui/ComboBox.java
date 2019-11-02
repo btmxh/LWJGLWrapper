@@ -5,8 +5,8 @@
  */
 package com.lwjglwrapper.utils.ui;
 
-import com.lwjglwrapper.LWJGL;
 import com.lwjglwrapper.nanovg.NVGGraphics;
+import com.lwjglwrapper.utils.floats.GLFloat;
 import com.lwjglwrapper.utils.math.MathUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,16 +22,18 @@ public class ComboBox extends Component{
     
     public static final int NORMAL = 0, HOVER = 1, CLICKED = 2;
     protected List<ComboBoxCell> cells;
-    protected Vector2f cellCorners;
     protected float cellHeight;
     protected int selectedIndex = 0;
     private OnChangeListener ocl;
     private boolean expand = false;
+    protected GLFloat cellCornerX;
+    protected GLFloat cellCornerY;
     
-    public ComboBox(Stage stage, boolean autoAdd, Vector2f cellCorners, float cellHeight) {
+    public ComboBox(Stage stage, boolean autoAdd, GLFloat cellCornerX, GLFloat cellCornerY, float cellHeight) {
         super(stage, autoAdd, 3);
         cells = new ArrayList<>();
-        this.cellCorners = cellCorners;
+        this.cellCornerX = cellCornerX;
+        this.cellCornerY = cellCornerY;
         this.cellHeight = cellHeight;
     }
     
@@ -49,8 +51,9 @@ public class ComboBox extends Component{
     @Override
     public void tick() {
         super.tick();
+        if(!isVisible())    return;
         
-        if(MathUtils.contains(getCurrentShape().getShape().boundBox(), stage.window.getMouse().getCursorPosition())) {
+        if(MathUtils.contains(getCurrentShape().getShape().boundBox(), detransformedMousePosition)) {
             if(stage.window.getMouse().anyMouseReleased(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
                 setMode(CLICKED);
                 expand = !expand;
@@ -64,7 +67,6 @@ public class ComboBox extends Component{
         
         for (int i = 0; i < cells.size(); i++) {
             ComboBoxCell cell = cells.get(i);
-            cell.offset.set(new Vector2f(cellCorners).add(0, cellHeight * i));
             cell.tick();
         }
     }
@@ -73,10 +75,13 @@ public class ComboBox extends Component{
     public void render(NVGGraphics g) {
         super.render(g);
         if(!expand) return;
+        g.push();
+        g.translate(cellCornerX.get(), cellCornerY.get());
         for (int i = 0; i < cells.size(); i++) {
             ComboBoxCell cell = cells.get(i);
             cell.render(g);
         }
+        g.pop();
     }
     
     @Override
@@ -122,7 +127,7 @@ public class ComboBox extends Component{
         @Override
         public void tick() {
             super.tick();
-            if(MathUtils.contains(getCurrentShape().getShape().boundBox(), stage.window.getMouse().getCursorPosition().sub(offset))) {
+            if(MathUtils.contains(getCurrentShape().getShape().boundBox(), detransformedMousePosition)) {
                 if(stage.window.getMouse().anyMouseReleased(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
                     setMode(CLICKED);
                     int index = comboBox.select(this);
@@ -131,6 +136,12 @@ public class ComboBox extends Component{
             } else {
                 setMode(NORMAL);
             }
+        }
+
+        @Override
+        public void render(NVGGraphics g) {
+            super.render(g);
+            g.translate(0, comboBox.cellHeight);
         }
         
         

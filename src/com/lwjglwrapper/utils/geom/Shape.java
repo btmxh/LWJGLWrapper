@@ -19,6 +19,13 @@ public interface Shape {
         @Override   public void render(NVGGraphics g) {}
     };
     
+    public static Shape emptyWithBounds(Rectanglef rect) {
+        return new Shape() {
+            @Override   public Rectanglef boundBox() {return rect;}
+            @Override   public void render(NVGGraphics g) {}
+        };
+    }
+    
     public Rectanglef boundBox();
     public void render(NVGGraphics g);
 }

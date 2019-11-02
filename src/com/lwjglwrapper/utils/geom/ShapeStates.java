@@ -6,13 +6,10 @@
 package com.lwjglwrapper.utils.geom;
 
 import com.lwjglwrapper.nanovg.paint.AdditionalPaint;
+import com.lwjglwrapper.nanovg.paint.types.FillPaint;
 import com.lwjglwrapper.nanovg.paint.Paint;
-import com.lwjglwrapper.utils.IColor;
-import com.lwjglwrapper.utils.geom.shapes.RoundRect;
+import com.lwjglwrapper.nanovg.paint.types.StrokePaint;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.function.Consumer;
 
 /**
  *
@@ -21,15 +18,16 @@ import java.util.function.Consumer;
 public class ShapeStates implements Cloneable {
 
     private Shape[] noPaintShapes;
-    private Paint[] strokes, fills;
+    private StrokePaint[] strokes;
+    private FillPaint[] fills;
     private AdditionalPaint[] afterPaints, beforePaints;
 
     private PaintedShape[] shapes;
 
     public ShapeStates(int maxShapes) {
         noPaintShapes = new Shape[maxShapes];
-        strokes = new Paint[maxShapes];
-        fills = new Paint[maxShapes];
+        strokes = new StrokePaint[maxShapes];
+        fills = new FillPaint[maxShapes];
         afterPaints = new AdditionalPaint[maxShapes];
         beforePaints = new AdditionalPaint[maxShapes];
 
@@ -64,28 +62,28 @@ public class ShapeStates implements Cloneable {
         return this;
     }
 
-    public ShapeStates setStroke(Paint stroke, int... modes) {
+    public ShapeStates setStroke(StrokePaint stroke, int... modes) {
         for (int mode : modes) {
             strokes[mode] = stroke;
         }
         return this;
     }
 
-    public ShapeStates setAllStrokes(Paint stroke) {
+    public ShapeStates setAllStrokes(StrokePaint stroke) {
         for (int mode = 0; mode < strokes.length; mode++) {
             strokes[mode] = stroke;
         }
         return this;
     }
 
-    public ShapeStates setFill(Paint fill, int... modes) {
+    public ShapeStates setFill(FillPaint fill, int... modes) {
         for (int mode : modes) {
             fills[mode] = fill;
         }
         return this;
     }
 
-    public ShapeStates setAllFills(Paint fill) {
+    public ShapeStates setAllFills(FillPaint fill) {
         for (int mode = 0; mode < fills.length; mode++) {
             fills[mode] = fill;
         }
@@ -144,16 +142,6 @@ public class ShapeStates implements Cloneable {
             return null;
         }
         return shapes[index];
-    }
-
-    public static void main(String[] args) {
-        ShapeStates shapes = new ShapeStates(3);
-        final int NORMAL = 0, HOVER = 1, CLICKED = 2;
-        shapes.setAll(new RoundRect(100, 100, 200, 400, 10));
-        shapes.setAllStrokes(new IColor(0.3f));
-        shapes.setFill(IColor.RED, NORMAL, CLICKED);
-        shapes.setFill(IColor.GREEN, HOVER);
-        shapes.construct(true);
     }
 
     @Override

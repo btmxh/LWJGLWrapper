@@ -5,6 +5,8 @@
  */
 package com.lwjglwrapper.utils.ui;
 
+import com.lwjglwrapper.LWJGL;
+import com.lwjglwrapper.utils.geom.shapes.RoundRect;
 import com.lwjglwrapper.utils.math.MathUtils;
 import org.lwjgl.glfw.GLFW;
 
@@ -29,7 +31,7 @@ public class Button extends Component{
         if(!isVisible())    return;
         if (stage.window.getMouse().mousePressed(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
             inBounds = MathUtils.contains(getCurrentShape().getShape().boundBox(),
-                    stage.window.getMouse().getCursorPosition());
+                    detransformedMousePosition);
         }
         if(stage.hovering == this) {
             setMode(HOVER);
@@ -37,6 +39,7 @@ public class Button extends Component{
                 setMode(CLICKED);
                 if(stage.window.getMouse().mousePressed(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
                     onClickListener.action(stage, this, currentMode);
+                    LWJGL.mouse.lockButton(GLFW.GLFW_MOUSE_BUTTON_LEFT);
                 }
             }
         } else setMode(NORMAL);
@@ -49,6 +52,12 @@ public class Button extends Component{
     public void setOnClickListener(OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
     }
+
+    public OnClickListener getOnClickListener() {
+        return onClickListener;
+    }
+    
+    
 
     @Override
     public void resetState() {

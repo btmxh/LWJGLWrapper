@@ -5,7 +5,9 @@
  */
 package com.lwjglwrapper.nanovg.paint;
 
-import com.lwjglwrapper.utils.IColor;
+import com.lwjglwrapper.utils.colors.AbstractColor;
+import com.lwjglwrapper.utils.colors.StaticColor;
+import com.lwjglwrapper.utils.colors.VaryColor;
 import org.lwjgl.nanovg.NVGPaint;
 
 /**
@@ -13,10 +15,10 @@ import org.lwjgl.nanovg.NVGPaint;
  * @author Welcome
  */
 public abstract class GradientPaint extends NanoVGPaint{
-    protected IColor icolor;
-    protected IColor ocolor;
+    protected AbstractColor icolor;
+    protected AbstractColor ocolor;
 
-    public GradientPaint(NVGPaint paint, IColor icolor, IColor ocolor) {
+    public GradientPaint(NVGPaint paint, AbstractColor icolor, AbstractColor ocolor) {
         super(paint);
         this.icolor = icolor;
         this.ocolor = ocolor;
@@ -24,27 +26,25 @@ public abstract class GradientPaint extends NanoVGPaint{
     
     
     
-    public void setColor(IColor icolor, IColor ocolor) {
+    public void setColor(AbstractColor icolor, AbstractColor ocolor) {
         this.icolor = icolor;
         this.ocolor = ocolor;
         resetPaint();
     }
 
-    protected abstract void resetPaint();
 
     /**
      * @return the icolor
      */
-    public IColor getIColor() {
+    public AbstractColor getIColor() {
         return icolor;
     }
 
     /**
      * @return the ocolor
      */
-    public IColor getOColor() {
+    public AbstractColor getOColor() {
         return ocolor;
     }
-    
     
 }

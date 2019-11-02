@@ -5,7 +5,9 @@
  */
 package com.lwjglwrapper.nanovg.paint;
 
-import com.lwjglwrapper.utils.IColor;
+import com.lwjglwrapper.nanovg.paint.types.FillPaint;
+import com.lwjglwrapper.utils.colors.AbstractColor;
+import com.lwjglwrapper.utils.colors.VaryColor;
 import org.joml.Rectanglef;
 import org.lwjgl.nanovg.NVGPaint;
 import org.lwjgl.nanovg.NanoVG;
@@ -19,7 +21,7 @@ public class BoxGradient extends GradientPaint{
     private float x, y, w, h, r, f;
 
     public BoxGradient(long nanoVGID, float x, float y, float w, float h, float r, float f,
-            IColor icolor, IColor ocolor) {
+            AbstractColor icolor, AbstractColor ocolor) {
         super(NanoVG.nvgBoxGradient(nanoVGID, x, y, w, h, r, f, icolor.toNanoVGColor(), ocolor.toNanoVGColor(), NVGPaint.create()), icolor, ocolor);
         this.nanoVGID = nanoVGID;
         this.x = x;
@@ -52,5 +54,10 @@ public class BoxGradient extends GradientPaint{
     @Override
     public void resetPaint() {
         nativePaint = NanoVG.nvgBoxGradient(nanoVGID, x, y, w, h, r, f, icolor.toNanoVGColor(), ocolor.toNanoVGColor(), NVGPaint.create());
+    }
+
+    @Override
+    public BoxGradient mulAlpha(float alpha) {
+        return new BoxGradient(nanoVGID, x, y, w, h, r, f, icolor.alpha(alpha), ocolor.alpha(alpha));
     }
 }

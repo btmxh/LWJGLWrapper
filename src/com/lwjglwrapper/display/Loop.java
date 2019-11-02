@@ -89,6 +89,7 @@ public class Loop implements Runnable {
     }
     
     protected void init() throws Exception{
+        Window.init();
         createWindow();
     }
     
@@ -112,6 +113,10 @@ public class Loop implements Runnable {
 
     public double getDeltaTime() {
         return delta;
+    }
+
+    public int getFrameNo() {
+        return frameNo;
     }
 
     

@@ -6,8 +6,7 @@
 package com.lwjglwrapper.utils.geom.shapes;
 
 import com.lwjglwrapper.nanovg.NVGGraphics;
-import com.lwjglwrapper.utils.geom.Shape;
-import org.joml.Rectanglef;
+import com.lwjglwrapper.utils.floats.GLFloat;
 
 /**
  *
@@ -15,23 +14,23 @@ import org.joml.Rectanglef;
  */
 public class RoundRect extends Rect {
 
-    private float topLeft, topRight, bottomRight, bottomLeft;
+    private GLFloat topLeft, topRight, bottomRight, bottomLeft;
 
-    public RoundRect(Rectanglef rect, float radius) {
+    public RoundRect(GLRect rect, GLFloat radius) {
         this(rect, rect, radius);
     }
 
-    public RoundRect(Rectanglef rect, float topLeft, float topRight,
-            float bottomRight, float bottomLeft) {
+    public RoundRect(GLRect rect, GLFloat topLeft, GLFloat topRight,
+            GLFloat bottomRight, GLFloat bottomLeft) {
         this(rect, rect, topLeft, topRight, bottomRight, bottomLeft);
     }
     
-    public RoundRect(Rectanglef rect, Rectanglef bounds, float radius) {
+    public RoundRect(GLRect rect, GLRect bounds, GLFloat radius) {
         this(rect, bounds, radius, radius, radius, radius);
     }
 
-    public RoundRect(Rectanglef rect, Rectanglef bounds, float topLeft,
-            float topRight, float bottomRight, float bottomLeft) {
+    public RoundRect(GLRect rect, GLRect bounds, GLFloat topLeft,
+            GLFloat topRight, GLFloat bottomRight, GLFloat bottomLeft) {
         super(rect, bounds);
         this.topLeft = topLeft;
         this.topRight = topRight;
@@ -39,24 +38,24 @@ public class RoundRect extends Rect {
         this.bottomLeft = bottomLeft;
     }
 
-    public RoundRect(float x, float y, float w, float h, float radius) {
-        this(Rect.jomlRect(x, y, w, h), radius);
+    public RoundRect(GLFloat x, GLFloat y, GLFloat w, GLFloat h, GLFloat radius) {
+        this(new GLRect(x, y, w, h), radius);
     }
 
-    public RoundRect(float x, float y, float w, float h, float topLeft,
-            float topRight, float bottomRight, float bottomLeft) {
-        this(Rect.jomlRect(x, y, w, h), topLeft, topRight, bottomRight, bottomLeft);
+    public RoundRect(GLFloat x, GLFloat y, GLFloat w, GLFloat h, GLFloat topLeft,
+            GLFloat topRight, GLFloat bottomRight, GLFloat bottomLeft) {
+        this(new GLRect(x, y, w, h), topLeft, topRight, bottomRight, bottomLeft);
     }
 
-    public RoundRect(float x, float y, float w, float h, float bx, float by,
-            float bw, float bh, float radius) {
-        this(Rect.jomlRect(x, y, w, h), Rect.jomlRect(bx, by, bw, bh), radius);
+    public RoundRect(GLFloat x, GLFloat y, GLFloat w, GLFloat h, GLFloat bx, GLFloat by,
+            GLFloat bw, GLFloat bh, GLFloat radius) {
+        this(new GLRect(x, y, w, h), new GLRect(bx, by, bw, bh), radius);
     }
 
-    public RoundRect(float x, float y, float w, float h, float bx, float by,
-            float bw, float bh, float topLeft, float topRight, float bottomRight,
-            float bottomLeft) {
-        this(Rect.jomlRect(x, y, w, h), Rect.jomlRect(bx, by, bw, bh), 
+    public RoundRect(GLFloat x, GLFloat y, GLFloat w, GLFloat h, GLFloat bx, GLFloat by,
+            GLFloat bw, GLFloat bh, GLFloat topLeft, GLFloat topRight, GLFloat bottomRight,
+            GLFloat bottomLeft) {
+        this(new GLRect(x, y, w, h), new GLRect(bx, by, bw, bh), 
                 topLeft, topRight, bottomRight, bottomLeft);
     }
 
@@ -64,63 +63,63 @@ public class RoundRect extends Rect {
 
     @Override
     public void render(NVGGraphics g) {
-        g.roundRect(rect.minX, rect.minY, rect.maxX - rect.minX, rect.maxY - rect.minY,
-                topLeft, topRight, bottomRight, bottomLeft);
+        g.roundRect(rect.getX().get(), rect.getY().get(), rect.getWidth().get(), rect.getHeight().get(),
+                topLeft.get(), topRight.get(), bottomRight.get(), bottomLeft.get());
     }
 
     /**
      * @return the topLeft
      */
-    public float getTopLeftRadius() {
+    public GLFloat getTopLeftRadius() {
         return topLeft;
     }
 
     /**
      * @param topLeft the topLeft to set
      */
-    public void setTopLeftRadius(float topLeft) {
+    public void setTopLeftRadius(GLFloat topLeft) {
         this.topLeft = topLeft;
     }
 
     /**
      * @return the topRight
      */
-    public float getTopRightRadius() {
+    public GLFloat getTopRightRadius() {
         return topRight;
     }
 
     /**
      * @param topRight the topRight to set
      */
-    public void setTopRightRadius(float topRight) {
+    public void setTopRightRadius(GLFloat topRight) {
         this.topRight = topRight;
     }
 
     /**
      * @return the bottomRight
      */
-    public float getBottomRightRadius() {
+    public GLFloat getBottomRightRadius() {
         return bottomRight;
     }
 
     /**
      * @param bottomRight the bottomRight to set
      */
-    public void setBottomRightRadius(float bottomRight) {
+    public void setBottomRightRadius(GLFloat bottomRight) {
         this.bottomRight = bottomRight;
     }
 
     /**
      * @return the bottomLeft
      */
-    public float getBottomLeftRadius() {
+    public GLFloat getBottomLeftRadius() {
         return bottomLeft;
     }
 
     /**
      * @param bottomLeft the bottomLeft to set
      */
-    public void setBottomLeftRadius(float bottomLeft) {
+    public void setBottomLeftRadius(GLFloat bottomLeft) {
         this.bottomLeft = bottomLeft;
     }
     

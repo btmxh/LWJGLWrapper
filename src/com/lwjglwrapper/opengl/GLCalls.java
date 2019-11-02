@@ -5,7 +5,7 @@
  */
 package com.lwjglwrapper.opengl;
 
-import com.lwjglwrapper.utils.IColor;
+import com.lwjglwrapper.utils.colors.AbstractColor;
 import java.util.stream.IntStream;
 import org.lwjgl.opengl.GL11;
 
@@ -15,8 +15,8 @@ import org.lwjgl.opengl.GL11;
  */
 public class GLCalls {
     
-    public static void setClearColor(IColor color) {
-        GL11.glClearColor(color.r, color.g, color.b, color.a);
+    public static void setClearColor(AbstractColor color) {
+        GL11.glClearColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
     }
     
     public static void clear(int mask) {

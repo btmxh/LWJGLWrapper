@@ -8,7 +8,7 @@ package com.lwjglwrapper.utils.models;
 import com.lwjglwrapper.opengl.objects.Texture2D;
 import com.lwjglwrapper.opengl.objects.TextureCube;
 import com.lwjglwrapper.opengl.objects.TexturedVAO;
-import com.lwjglwrapper.utils.IColor;
+import com.lwjglwrapper.utils.colors.StaticColor;
 import com.lwjglwrapper.opengl.objects.VAO;
 import com.lwjglwrapper.utils.models.objs.OBJ;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import org.joml.Vector3f;
  */
 public class ModelGenerator {
 
-    public List<IColor> colors = new ArrayList<>();
+    public List<StaticColor> colors = new ArrayList<>();
 
     public OBJLoader loader;
 

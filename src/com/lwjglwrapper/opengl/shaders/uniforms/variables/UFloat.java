@@ -23,4 +23,8 @@ public class UFloat extends UniformVariable<Float>{
         GL20.glUniform1f(location, value);
     }
     
+    public void load(float value) {
+        load(new Float(value));
+    }
+    
 }

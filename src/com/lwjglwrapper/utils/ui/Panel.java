@@ -6,20 +6,23 @@
 package com.lwjglwrapper.utils.ui;
 
 import com.lwjglwrapper.nanovg.NVGGraphics;
+import com.lwjglwrapper.utils.math.MathUtils;
 import static com.lwjglwrapper.utils.ui.Button.NORMAL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.joml.Rectanglef;
 import org.joml.Vector2f;
 
 /**
  *
  * @author Welcome
  */
-public class Panel extends Component{
+public class Panel extends ComponentCollection{
     
     public static final int NORMAL = 0;
     
-    private List<Component> children = new ArrayList<>();
+    protected List<Component> children = new ArrayList<>();
     
     public Panel(Stage stage, boolean autoAdd) {
         super(stage, autoAdd, 1);
@@ -27,6 +30,8 @@ public class Panel extends Component{
 
     @Override
     public void tick() {
+        if(!isVisible())    return;
+        if(shapes == null)  return;
         super.tick();
         for (Component comp : children) {
             comp.tick();
@@ -35,31 +40,48 @@ public class Panel extends Component{
 
     @Override
     public void render(NVGGraphics g) {
+        if(!isVisible())    return;
+        if(shapes == null)  return;
+        g.push();
         super.render(g);
         for (Component comp : children) {
             comp.render(g);
         }
+        g.pop();
     }
     
-    
-    
     public void addChild(Component comp) {
-        comp.setOffset(offset);
         children.add(comp);
     }
     
     public void removeChild(Component comp) {
-        comp.setOffset(new Vector2f());
         children.remove(comp);
     }
 
-    public Vector2f getOffset() {
-        return offset;
-    }
     
     @Override
     public void resetState() {
         super.resetState();
         setMode(NORMAL);
+    }
+
+    @Override
+    public Component findHover() {
+        Component hovering = null;
+        for(int i = children.size() - 1; i >= 0; i--) {
+            Component comp = children.get(i);
+            if(!comp.isVisible() || hovering != null)   continue;
+            if(comp instanceof Panel)    hovering = ((Panel) comp).findHover();
+            if(comp.getCurrentShape() == null)   continue;
+            boolean hover = MathUtils.contains(comp.getCurrentShape().getShape().boundBox(), comp.detransformedMousePosition);
+            if(hover)   hovering = comp;
+            
+        }
+        return hovering;
+    }
+
+    @Override
+    public List<Component> children() {
+        return children;
     }
 }

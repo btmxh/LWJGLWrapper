@@ -5,12 +5,33 @@
  */
 package com.lwjglwrapper.nanovg.paint;
 
+import com.lwjglwrapper.nanovg.paint.types.TextPaint;
+import com.lwjglwrapper.nanovg.paint.types.FillPaint;
+import com.lwjglwrapper.nanovg.paint.types.StrokePaint;
+
 /**
  *
  * @author Welcome
  */
-public interface Paint {
-    public void fill(long nvgID);
-    public void stroke(long nvgID);
-    public void text(long nvgID);
+public abstract class Paint implements FillPaint, StrokePaint, TextPaint{
+    public abstract Paint mulAlpha(float alpha);
+
+    @Override
+    public FillPaint fmulAlpha(float alpha) {
+        return mulAlpha(alpha);
+    }
+
+    @Override
+    public StrokePaint smulAlpha(float alpha) {
+        return mulAlpha(alpha);
+    }
+
+    @Override
+    public TextPaint tmulAlpha(float alpha) {
+        return mulAlpha(alpha);
+    }
+    
+    
+    
+    
 }

@@ -27,32 +27,6 @@ public class Texture {
         gl_id = GL11.glGenTextures();
     }
     
-//    public Texture(String path) {
-//        this(path, GL11.GL_TEXTURE_2D);
-//    }
-//    
-//    public Texture(String path, int textureType) {
-//        this.textureType = textureType;
-//        try (MemoryStack stack = MemoryStack.stackPush()) {
-//            IntBuffer w = stack.mallocInt(1);
-//            IntBuffer h = stack.mallocInt(1);
-//            IntBuffer comp = stack.mallocInt(1);
-//            
-//            ByteBuffer pixels = STBImage.stbi_load(path, w, h, comp, 4);
-//            
-//            texData = new TextureData(w.get(), h.get(), pixels);
-//        }
-//        
-//        gl_id = GL11.glGenTextures();
-//        bind();
-//        GL11.glTexImage2D(textureType, 0, GL11.GL_RGBA, texData.getWidth(), texData.getHeight(),
-//                0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, texData.getPixelData());
-//        configTexture(gl_id);
-//        unbind();
-//        
-//        texData.free();
-//    }
-    
     public final void bind() {
         GL11.glBindTexture(textureType, gl_id);
     }

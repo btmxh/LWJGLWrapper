@@ -22,7 +22,8 @@ public class TextField extends CharComponent{
     protected boolean selected = false;
     protected long l, lastBackspace;
     
-    private TextOnChangeListener textOnChangeListener = (s, i) -> {};
+    
+    protected TextOnChangeListener textOnChangeListener = (s, i) -> {};
     
     public TextField(Stage stage, boolean autoAdd) {
         super(stage, autoAdd, 4);
@@ -32,12 +33,10 @@ public class TextField extends CharComponent{
     @Override
     public void tick() {
         super.tick();
-        Vector2f translatedCursorPosition = stage.window.getMouse().getCursorPosition().sub(offset);
+        Vector2f translatedCursorPosition = detransformedMousePosition;
         if(!isVisible())    return;
         if(MathUtils.contains(getCurrentShape().getShape().boundBox(), translatedCursorPosition)) {
-            stage.window.setStandardCursor(GLFW.GLFW_IBEAM_CURSOR);
-        } else {
-            stage.window.setStandardCursor(GLFW.GLFW_ARROW_CURSOR);
+            stage.setStandardCursor(GLFW.GLFW_IBEAM_CURSOR);
         }
         if (selected) {
             setMode(SELECTED);
@@ -47,15 +46,13 @@ public class TextField extends CharComponent{
                 setMode(UNSELECTED);
             }
             if(stage.window.getKeyboard().keyPressed(GLFW.GLFW_KEY_ENTER)) {
-                text.append("\n");
-                textOnChangeListener.textOnChange("\n", TextOnChangeListener.ADD);
+                appendText("\n");
             }
             if (stage.window.getKeyboard().keyPressed(GLFW.GLFW_KEY_BACKSPACE) && text.length() != 0) {
                 char delete = text.charAt(text.length() - 1);
-                text.deleteCharAt(text.length() - 1);
+                removeText("" + delete);
                 lastBackspace = System.currentTimeMillis();
                 l = 500;
-                textOnChangeListener.textOnChange("" + delete, TextOnChangeListener.DELETE);
             }
             if (stage.window.getKeyboard().keyReleased(GLFW.GLFW_KEY_BACKSPACE)) {
                 lastBackspace = -1;
@@ -65,10 +62,9 @@ public class TextField extends CharComponent{
                 long time = (System.currentTimeMillis() - lastBackspace) - l;
                 if (time > 0 && text.length() != 0) {
                     char delete = text.charAt(text.length() - 1);
-                    text.deleteCharAt(text.length() - 1);
+                    removeText("" + delete);
                     lastBackspace = System.currentTimeMillis();
                     l = 50;
-                    textOnChangeListener.textOnChange("" + delete, TextOnChangeListener.DELETE);
                 }
             }
         } else if (MathUtils.contains(getCurrentShape().getShape().boundBox(), translatedCursorPosition)) {
@@ -97,8 +93,7 @@ public class TextField extends CharComponent{
     @Override
     public void charEntered(int codePoint) {
         if(selected) {
-            text.append((char) codePoint);
-            textOnChangeListener.textOnChange((char) codePoint + "", TextOnChangeListener.ADD);
+            appendText((char) codePoint + "");
         }
     }
     
@@ -110,6 +105,20 @@ public class TextField extends CharComponent{
 
     public void setTextOnChangeListener(TextOnChangeListener listener) {
         this.textOnChangeListener = listener;
+    }
+    
+    protected void appendText(String append) {
+        text.append(append);
+        textOnChangeListener.textOnChange(append, TextOnChangeListener.ADD);
+    }
+    
+    protected void removeText(String delete) {
+        text.deleteCharAt(text.length() - delete.length());
+        textOnChangeListener.textOnChange(delete, TextOnChangeListener.DELETE);
+    }
+    
+    public StringBuilder getTextBuilder() {
+        return text;
     }
     
     public static interface TextOnChangeListener {

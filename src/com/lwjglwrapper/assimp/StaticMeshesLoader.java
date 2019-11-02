@@ -9,7 +9,7 @@ import com.lwjglwrapper.exceptions.AssimpException;
 import com.lwjglwrapper.opengl.objects.Texture2D;
 import com.lwjglwrapper.opengl.objects.TextureData;
 import com.lwjglwrapper.opengl.objects.VAO;
-import com.lwjglwrapper.utils.IColor;
+import com.lwjglwrapper.utils.colors.StaticColor;
 import com.lwjglwrapper.utils.Utils;
 import com.lwjglwrapper.utils.collections.FloatArrayStack;
 import com.lwjglwrapper.utils.collections.IntArrayStack;
@@ -78,9 +78,9 @@ public class StaticMeshesLoader {
     private static void process(Class cl, AIMaterial material,
             List<Material> materialList,
             String texturesDir) {
-        IColor ambient = Material.DEFAULT_COLOR;
-        IColor diffuse = Material.DEFAULT_COLOR;
-        IColor specular = Material.DEFAULT_COLOR;
+        StaticColor ambient = Material.DEFAULT_COLOR;
+        StaticColor diffuse = Material.DEFAULT_COLOR;
+        StaticColor specular = Material.DEFAULT_COLOR;
 
         AIString path = AIString.calloc();
         Assimp.aiGetMaterialTexture(material, Assimp.aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, null, null, null, null, null);
@@ -89,13 +89,13 @@ public class StaticMeshesLoader {
         AIColor4D tempColor = AIColor4D.create();
 
         if (Assimp.aiGetMaterialColor(material, Assimp.AI_MATKEY_COLOR_AMBIENT, Assimp.aiTextureType_NONE, 0, tempColor) == Assimp.aiReturn_SUCCESS) {
-            ambient = IColor.assimp(tempColor);
+            ambient = StaticColor.assimp(tempColor);
         }
         if (Assimp.aiGetMaterialColor(material, Assimp.AI_MATKEY_COLOR_DIFFUSE, Assimp.aiTextureType_NONE, 0, tempColor) == Assimp.aiReturn_SUCCESS) {
-            diffuse = IColor.assimp(tempColor);
+            diffuse = StaticColor.assimp(tempColor);
         }
         if (Assimp.aiGetMaterialColor(material, Assimp.AI_MATKEY_COLOR_SPECULAR, Assimp.aiTextureType_NONE, 0, tempColor) == Assimp.aiReturn_SUCCESS) {
-            specular = IColor.assimp(tempColor);
+            specular = StaticColor.assimp(tempColor);
         }
 
         materialList.add(new Material(texture, ambient, diffuse, specular));
@@ -186,13 +186,13 @@ public class StaticMeshesLoader {
 
     public static class Material {
 
-        private static IColor DEFAULT_COLOR = IColor.BLACK;
+        private static StaticColor DEFAULT_COLOR = StaticColor.BLACK;
 
         private Texture2D texture;
-        private IColor ambient, diffuse, specular;
+        private StaticColor ambient, diffuse, specular;
 
-        public Material(Texture2D texture, IColor ambient, IColor diffuse,
-                IColor specular) {
+        public Material(Texture2D texture, StaticColor ambient, StaticColor diffuse,
+                StaticColor specular) {
             this.texture = texture;
             this.ambient = ambient;
             this.diffuse = diffuse;

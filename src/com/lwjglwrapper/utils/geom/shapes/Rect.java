@@ -6,6 +6,7 @@
 package com.lwjglwrapper.utils.geom.shapes;
 
 import com.lwjglwrapper.nanovg.NVGGraphics;
+import com.lwjglwrapper.utils.floats.GLFloat;
 import com.lwjglwrapper.utils.geom.Shape;
 import com.lwjglwrapper.utils.math.MathUtils;
 import java.awt.geom.Rectangle2D;
@@ -18,33 +19,33 @@ import org.joml.Vector2f;
  */
 public class Rect implements Shape{
 
-    protected Rectanglef rect, bounds;
+    protected GLRect rect, bounds;
 
-    public Rect(float x, float y, float w, float h) {
-        this(jomlRect(x, y, w, h));
+    public Rect(GLFloat x, GLFloat y, GLFloat w, GLFloat h) {
+        this(new GLRect(x, y, w, h));
     }
     
-    public Rect(float x, float y, float w, float h, float bx, float by, float bw, float bh) {
-        this(jomlRect(x, y, w, h), jomlRect(bx, by, bw, bh));
+    public Rect(GLFloat x, GLFloat y, GLFloat w, GLFloat h, GLFloat bx, GLFloat by, GLFloat bw, GLFloat bh) {
+        this(new GLRect(x, y, w, h), new GLRect(bx, by, bw, bh));
     }
     
-    public Rect(Rectanglef rect) {
+    public Rect(GLRect rect) {
         this(rect, rect);
     }
 
-    public Rect(Rectanglef rect, Rectanglef bounds) {
+    public Rect(GLRect rect, GLRect bounds) {
         this.rect = rect;
         this.bounds = bounds;
     }
     
     @Override
     public Rectanglef boundBox() {
-        return bounds;
+        return bounds.getJOMLRect();
     }
 
     @Override
     public void render(NVGGraphics g) {
-        g.rect(rect.minX, rect.minY, rect.maxX - rect.minX, rect.maxY - rect.minY);
+        g.rect(rect.getX().get(), rect.getY().get(), rect.getWidth().get(), rect.getHeight().get());
     }
     
     public static Rectanglef jomlRect(float x, float y, float w, float h) {
@@ -56,15 +57,15 @@ public class Rect implements Shape{
     }
 
     public Rectanglef getJOMLRect() {
-        return rect;
+        return rect.getJOMLRect();
     }
 
     public Rectanglef getJOMLBounds() {
-        return bounds;
+        return bounds.getJOMLRect();
     }
     
     public boolean contains(Vector2f point) {
-        return MathUtils.contains(rect, point);
+        return MathUtils.contains(rect.getJOMLRect(), point);
     }
     
 }

@@ -7,7 +7,9 @@ package com.lwjglwrapper.utils.geom;
 
 import com.lwjglwrapper.nanovg.NVGGraphics;
 import com.lwjglwrapper.nanovg.paint.AdditionalPaint;
+import com.lwjglwrapper.nanovg.paint.types.FillPaint;
 import com.lwjglwrapper.nanovg.paint.Paint;
+import com.lwjglwrapper.nanovg.paint.types.StrokePaint;
 import org.joml.Vector2f;
 
 /**
@@ -18,11 +20,11 @@ public class PaintedShape<S extends Shape>{
 
     public static final PaintedShape EMPTY = new PaintedShape(Shape.EMPTY, null, null);
     private S shape;
-    private Paint fill;
-    private Paint stroke;
+    private FillPaint fill;
+    private StrokePaint stroke;
     private AdditionalPaint afterPaint, beforePaint;
 
-    public PaintedShape(S shape, Paint fill, Paint stroke) {
+    public PaintedShape(S shape, FillPaint fill, StrokePaint stroke) {
         this.shape = shape;
         this.fill = fill;
         this.stroke = stroke;
@@ -30,7 +32,7 @@ public class PaintedShape<S extends Shape>{
         this.beforePaint = AdditionalPaint.DO_NOTHING;
     }
 
-    public PaintedShape(S shape, Paint fill, Paint stroke,
+    public PaintedShape(S shape, FillPaint fill, StrokePaint stroke,
             AdditionalPaint afterPaint, AdditionalPaint beforePaint) {
         this.shape = shape;
         this.fill = fill;
@@ -59,14 +61,14 @@ public class PaintedShape<S extends Shape>{
     /**
      * @return the fill
      */
-    public Paint getFill() {
+    public FillPaint getFill() {
         return fill;
     }
 
     /**
      * @return the stroke
      */
-    public Paint getStroke() {
+    public StrokePaint getStroke() {
         return stroke;
     }
 

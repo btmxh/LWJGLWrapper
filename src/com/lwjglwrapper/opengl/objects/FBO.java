@@ -52,4 +52,8 @@ public class FBO {
         bind();
         GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, type, GL30.GL_RENDERBUFFER, rbo.getId());
     }
+
+    public void dispose() {
+        GL30.glDeleteFramebuffers(id);
+    }
 }

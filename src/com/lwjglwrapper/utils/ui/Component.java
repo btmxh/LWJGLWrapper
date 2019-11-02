@@ -5,6 +5,7 @@
  */
 package com.lwjglwrapper.utils.ui;
 
+import com.lwjglwrapper.LWJGL;
 import com.lwjglwrapper.display.Window;
 import com.lwjglwrapper.nanovg.NVGGraphics;
 import com.lwjglwrapper.utils.geom.PaintedShape;
@@ -13,18 +14,19 @@ import com.lwjglwrapper.utils.geom.ShapeStates;
 import java.util.ArrayList;
 import java.util.List;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 /**
  *
  * @author Welcome
  */
-public abstract class Component {
+public class Component {
     protected Stage stage;
     protected ShapeStates shapes;
     protected int currentMode = 0;
     private boolean visible = true;
-    protected Vector2f offset = new Vector2f();
     protected List<ComponentListener> listeners = new ArrayList<>();
+    public Vector2f detransformedMousePosition = new Vector2f();
     
     public Component(Stage stage, boolean autoAdd, int maxModes) {
         this.stage = stage;
@@ -36,7 +38,7 @@ public abstract class Component {
         return shapes;
     }
     
-    protected PaintedShape getCurrentShape() {
+    public PaintedShape getCurrentShape() {
         return shapes.get(currentMode);
     }
     
@@ -54,14 +56,13 @@ public abstract class Component {
     }
     
     public void render(NVGGraphics g) {
+        Vector3f mousePos = g.getCurrentState().inverse().transform(new Vector3f(stage.window.getMouse().getCursorPosition(), 1));
+        detransformedMousePosition = new Vector2f(mousePos.x, mousePos.y);
         if(!visible)    return;
         if(shapes == null)  return;
         PaintedShape shape = shapes.get(currentMode);
         if(shape == null)   return;
-        g.push();
-        g.translate(offset);
         shape.render(g);
-        g.pop();
     }
     
     public void renderAndTick(NVGGraphics g) {
@@ -86,8 +87,10 @@ public abstract class Component {
     public void setMode(int mode) {
         this.currentMode = mode;
     }
-
-    void setOffset(Vector2f offset) {
-        this.offset = new Vector2f(offset);
+    
+    public int getCurrentMode() {
+        return currentMode;
     }
+
+    
 }

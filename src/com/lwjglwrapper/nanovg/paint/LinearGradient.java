@@ -5,7 +5,9 @@
  */
 package com.lwjglwrapper.nanovg.paint;
 
-import com.lwjglwrapper.utils.IColor;
+import com.lwjglwrapper.nanovg.paint.types.FillPaint;
+import com.lwjglwrapper.utils.colors.AbstractColor;
+import com.lwjglwrapper.utils.colors.VaryColor;
 import org.lwjgl.nanovg.NVGPaint;
 import org.lwjgl.nanovg.NanoVG;
 
@@ -19,7 +21,7 @@ public class LinearGradient extends GradientPaint{
     private float ex, ey;
 
     public LinearGradient(long nanoVGID, float sx, float sy, float ex, float ey,
-            IColor icolor, IColor ocolor) {
+            AbstractColor icolor, AbstractColor ocolor) {
         super(NanoVG.nvgLinearGradient(nanoVGID, sx, sy, ex, ey, icolor.toNanoVGColor(), ocolor.toNanoVGColor(), NVGPaint.create()), icolor, ocolor);
         this.nanoVGID = nanoVGID;
         this.sx = sx;
@@ -36,7 +38,13 @@ public class LinearGradient extends GradientPaint{
         resetPaint();
     }
 
+    @Override
     public void resetPaint() {
         nativePaint = NanoVG.nvgLinearGradient(nanoVGID, sx, sy, ex, ey, icolor.toNanoVGColor(), ocolor.toNanoVGColor(), NVGPaint.create());
+    }
+
+    @Override
+    public LinearGradient mulAlpha(float alpha) {
+        return new LinearGradient(nanoVGID, sx, sy, ex, ey, icolor.alpha(alpha), ocolor.alpha(alpha));
     }
 }
