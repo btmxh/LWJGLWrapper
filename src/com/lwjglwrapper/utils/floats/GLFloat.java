@@ -13,6 +13,10 @@ public interface GLFloat {
 
     public float get();
     
+    public default GLFloat neg() {
+        return () -> -get();
+    }
+    
     public static GLFloat memValue(float value) {
         return () -> value;
     }

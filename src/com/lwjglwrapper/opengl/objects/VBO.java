@@ -7,8 +7,12 @@ package com.lwjglwrapper.opengl.objects;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL43;
+import org.lwjgl.system.MemoryStack;
 
 /**
  *
@@ -19,10 +23,10 @@ public class VBO {
     private int type;
     private int usage;
     
-    public VBO(int type) {
+    public VBO(int type, int usage) {
         this.type = type;
         id = GL20.glGenBuffers();
-        usage = GL15.GL_STATIC_DRAW;
+        this.usage = usage;
     }
 
     public void dispose() {
@@ -36,6 +40,10 @@ public class VBO {
     
     public void unbind() {
         GL20.glBindBuffer(type, 0);
+    }
+    
+    public void storeData(long size) {
+        GL15.glBufferData(type, size, usage);
     }
     
     public void storeData(float[] data) {
@@ -52,5 +60,26 @@ public class VBO {
     
     public void storeData(IntBuffer data) {
         GL20.glBufferData(type, data, usage);
+    }
+    
+    public void updateVBO(float[] data) {
+        bind();
+        storeData(data.length * Float.BYTES);
+        GL15.glBufferSubData(type, 0, data);
+        unbind();
+    }
+    
+    public void updateVBO(int offset, float[] data) {
+        bind();
+        GL15.glBufferSubData(type, offset, data);
+        unbind();
+    }
+
+    public void updateVBO(FloatBuffer buffer) {
+        bind();
+        buffer.flip();
+        storeData(buffer.capacity());
+        GL15.glBufferSubData(type, 0, buffer);
+        unbind();
     }
 }

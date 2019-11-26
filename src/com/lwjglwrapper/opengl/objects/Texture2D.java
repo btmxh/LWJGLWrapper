@@ -31,7 +31,7 @@ public class Texture2D extends Texture{
         setTextureData(texData);
         configTexture(gl_id);
         unbind();
-        texData.free();
+        //texData.free();
     }
     
     public final void setTextureData(TextureData texData) {
@@ -39,6 +39,10 @@ public class Texture2D extends Texture{
         bind();
         GL11.glTexImage2D(textureType, 0, GL11.GL_RGBA, texData.getWidth(), texData.getHeight(),
                 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, texData.getPixelData());
+    }
+    
+    public final void modifyTexture(TextureData texData, int xoff, int yoff) {
+        GL11.glTexSubImage2D(textureType, 0, xoff, yoff, texData.getWidth(), texData.getHeight(), GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, texData.getPixelData());
     }
 
     public TextureData getTextureData() {

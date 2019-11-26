@@ -5,6 +5,7 @@
  */
 package com.lwjglwrapper.opengl;
 
+import com.lwjglwrapper.utils.Logger;
 import com.lwjglwrapper.utils.colors.AbstractColor;
 import java.util.stream.IntStream;
 import org.lwjgl.opengl.GL11;
@@ -29,6 +30,13 @@ public class GLCalls {
     
     public static void disable(int... mask) {
         IntStream.of(mask).forEach(GL11::glDisable);
+    }
+
+    public static void debugError() {
+        int error;
+        if((error = GL11.glGetError()) != GL11.GL_NO_ERROR) {
+            System.exit(error);
+        }
     }
     
 }

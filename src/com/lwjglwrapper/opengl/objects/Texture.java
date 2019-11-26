@@ -31,9 +31,10 @@ public class Texture {
         GL11.glBindTexture(textureType, gl_id);
     }
     
-    public final void bind(int texSlot) {
+    public final int bind(int texSlot) {
         GL13.glActiveTexture(GL13.GL_TEXTURE0 + texSlot);
         bind();
+        return texSlot;
     }
     
     public final void unbind() {

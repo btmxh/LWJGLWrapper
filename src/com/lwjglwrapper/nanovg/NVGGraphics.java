@@ -303,6 +303,10 @@ public class NVGGraphics {
         NanoVG.nvgText(nanoVGID, x, y, text);
     }
     
+    public void text(ByteBuffer text, float x, float y) {
+        NanoVG.nvgText(nanoVGID, x, y, text);
+    }
+    
     public void textBox(String text, float x, float y, float width) {
         NanoVG.nvgTextBox(nanoVGID, x, y, width, text);
     }

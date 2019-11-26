@@ -22,9 +22,6 @@ import org.lwjgl.opengl.GL40;
  * @author Welcome
  */
 public class ShaderFile {
-
-    
-
     private final int id;
     private final int type;
 
@@ -86,7 +83,6 @@ public class ShaderFile {
             case GL20.GL_FRAGMENT_SHADER: return "fragment shader";
             case GL40.GL_TESS_EVALUATION_SHADER: return "tessellation evaluation shader";
             case GL40.GL_TESS_CONTROL_SHADER: return "tessellation control shader";
-            
             default: return "Invalid shader type";
         }
     }

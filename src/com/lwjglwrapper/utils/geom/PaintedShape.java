@@ -47,7 +47,7 @@ public class PaintedShape<S extends Shape>{
         shape.render(g);
         g.fill(fill);
         g.stroke(stroke);
-
+        
         afterPaint.paint(g);
     }
 

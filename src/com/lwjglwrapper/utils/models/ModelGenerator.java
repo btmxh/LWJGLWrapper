@@ -7,6 +7,7 @@ package com.lwjglwrapper.utils.models;
 
 import com.lwjglwrapper.opengl.objects.Texture2D;
 import com.lwjglwrapper.opengl.objects.TextureCube;
+import com.lwjglwrapper.opengl.objects.TextureData;
 import com.lwjglwrapper.opengl.objects.TexturedVAO;
 import com.lwjglwrapper.utils.colors.StaticColor;
 import com.lwjglwrapper.opengl.objects.VAO;
@@ -50,10 +51,28 @@ public class ModelGenerator {
         }
     }
 
+    @Deprecated
     public TexturedVAO texturedCube2D(String texPath, int texSlot) {
         try {
             return loader.loadOBJ(OBJ.class.getResourceAsStream("cube.obj"),
                     new Texture2D(texPath), texSlot, true);
+        } catch (IOException ex) {
+            throw new InternalError(ex);
+        }
+    }
+    
+    public TexturedVAO texturedCube2D(Class classloader, String resPath, int texSlot) {
+        try {
+            return loader.loadOBJ(OBJ.class.getResourceAsStream("cube.obj"),
+                new Texture2D(TextureData.fromResource(classloader, resPath)), texSlot, true);
+        } catch (IOException ex) {
+            throw new InternalError(ex);
+        }
+    }
+    
+    public TexturedVAO texturedCube2D(Texture2D texture, int texSlot) {
+        try {
+            return loader.loadOBJ(OBJ.class.getResourceAsStream("cube.obj"), texture, texSlot, true);
         } catch (IOException ex) {
             throw new InternalError(ex);
         }
@@ -111,7 +130,7 @@ public class ModelGenerator {
         for (int z = 0; z < verticalVertexCount; z++) {
             for (int x = 0; x < horizontalVertexCount; x++) {
                 builder.put(0, new Vector3f(offset).add(scale.mul(x, heights[x][z], z, new Vector3f())));
-                builder.put(1, calcNormals(x, z, heights));
+                builder.put(1, mesh_calcNormals(x, z, heights));
             }
         }
         for (int z = 0; z < height; z++) {
@@ -138,12 +157,12 @@ public class ModelGenerator {
         return meshXYZ(heights, offset, scale, width, height);
     }
 
-    private Vector3f calcNormals(int x, int z, float[][] heights) {
-        return new Vector3f(getHeight(x-1, z, heights) - getHeight(x+1, z, heights),
-                2f, getHeight(x, z-1, heights) - getHeight(x, z+1, heights)).normalize();
+    public Vector3f mesh_calcNormals(int x, int z, float[][] heights) {
+        return new Vector3f(mesh_getHeight(x-1, z, heights) - mesh_getHeight(x+1, z, heights),
+                2f, mesh_getHeight(x, z-1, heights) - mesh_getHeight(x, z+1, heights)).normalize();
     }
     
-    private float getHeight(int x, int z, float[][] heights) {
+    private float mesh_getHeight(int x, int z, float[][] heights) {
         if(x < 0 | x >= heights.length | z < 0 | z >= heights[0].length) {
             return 0f;
         } else return heights[x][z];

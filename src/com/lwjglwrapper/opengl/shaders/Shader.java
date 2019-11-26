@@ -6,7 +6,10 @@
 package com.lwjglwrapper.opengl.shaders;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
 
@@ -17,6 +20,9 @@ import org.lwjgl.opengl.GL32;
 public class Shader {
     int id;
     private List<ShaderFile> shaders;
+    
+    private Map<String, Integer> uniformLocations = new HashMap<>();
+    private Map<Class, UniformLoader> uniformLoaders = UniformLoader.sul_clone();
     
     private Shader() {
         id = GL20.glCreateProgram();
@@ -68,6 +74,30 @@ public class Shader {
     
     public int getUniformLocation(String variableName) {
         return GL20.glGetUniformLocation(id, variableName);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public int loadUniformVariable(String variableName, Object value) {
+        Integer location = uniformLocations.get(variableName);
+        if(location == null) {
+            location = getUniformLocation(variableName);
+            uniformLocations.put(variableName, location);
+        }
+        loadUniformVariable(location, value);
+        return location;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void loadUniformVariable(int location, Object value) {
+        Objects.requireNonNull(value);
+        for (Map.Entry<Class, UniformLoader> entry : uniformLoaders.entrySet()) {
+            Class clazz = entry.getKey();
+            UniformLoader loader = entry.getValue();
+            if(clazz.isInstance(value)) {
+                loader.load(location, value);
+                return;
+            }
+        }
     }
     
     public void dispose() {

@@ -9,6 +9,7 @@ import com.lwjglwrapper.LWJGL;
 import com.lwjglwrapper.utils.GameUtils;
 import com.lwjglwrapper.utils.Logger;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 /**
  *
@@ -82,6 +83,7 @@ public class Loop implements Runnable {
 
     protected void render() throws Exception{
         window.updateDisplay();
+//        GL11.glFlush();
     }
 
     protected void update(float delta) throws Exception{

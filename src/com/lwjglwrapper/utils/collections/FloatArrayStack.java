@@ -6,9 +6,10 @@
 package com.lwjglwrapper.utils.collections;
 
 /**
- *
+ * This class may cause a lot of performance issues
  * @author Welcome
  */
+@Deprecated
 public class FloatArrayStack {
     private float[] array;
     private int pointer;

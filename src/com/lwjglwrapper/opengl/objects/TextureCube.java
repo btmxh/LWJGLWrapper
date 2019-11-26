@@ -27,6 +27,7 @@ public class TextureCube extends Texture{
             if(pathMode == FILE_MODE) {
                 data = TextureData.fromPath(path);
             } else {
+                System.out.println(path);
                 data = TextureData.fromResource(TextureCube.class, path);
             }
             GL11.glTexImage2D(GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL11.GL_RGBA,

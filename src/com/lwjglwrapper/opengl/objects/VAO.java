@@ -8,12 +8,16 @@ package com.lwjglwrapper.opengl.objects;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
+import org.lwjgl.system.MemoryStack;
 
 /**
  *
@@ -82,23 +86,25 @@ public class VAO {
         GL30.glBindVertexArray(0);
     }
 
-    public void createIndexBuffer(int[] indices) {
-        this.indexVBO = new VBO(GL15.GL_ELEMENT_ARRAY_BUFFER);
+    public VBO createIndexBuffer(int[] indices) {
+        this.indexVBO = new VBO(GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_STATIC_DRAW);
         indexVBO.bind();
         indexVBO.storeData(indices);
         this.vertexCount = indices.length;
+        return indexVBO;
     }
     
-    public void createIndexBuffer(IntBuffer indexBuffer, int vertexCount) {
-        this.indexVBO = new VBO(GL15.GL_ELEMENT_ARRAY_BUFFER);
+    public VBO createIndexBuffer(IntBuffer indexBuffer, int vertexCount) {
+        this.indexVBO = new VBO(GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_STATIC_DRAW);
         indexVBO.bind();
         indexBuffer.flip();
         indexVBO.storeData(indexBuffer);
         this.vertexCount = vertexCount;
+        return indexVBO;
     }
 
-    public void createAttribute(int attribute, float[] data, int attrSize) {
-        VBO vbo = new VBO(GL15.GL_ARRAY_BUFFER);
+    public VBO createAttribute(int attribute, float[] data, int attrSize) {
+        VBO vbo = new VBO(GL15.GL_ARRAY_BUFFER, GL15.GL_STATIC_DRAW);
         vbo.bind();
         vbo.storeData(data);
         GL20.glVertexAttribPointer(attribute, attrSize, GL11.GL_FLOAT, false,
@@ -108,10 +114,11 @@ public class VAO {
         allAttribs.add(attribute);
         
         if(indexVBO == null)    vertexCount = data.length / attrSize;
+        return vbo;
     }
 
-    public void createIntAttribute(int attribute, int[] data, int attrSize) {
-        VBO vbo = new VBO(GL15.GL_ARRAY_BUFFER);
+    public VBO createIntAttribute(int attribute, int[] data, int attrSize) {
+        VBO vbo = new VBO(GL15.GL_ARRAY_BUFFER, GL15.GL_STATIC_DRAW);
         vbo.bind();
         
         vbo.storeData(data);
@@ -122,10 +129,11 @@ public class VAO {
         allAttribs.add(attribute);
     
         if(indexVBO == null)    vertexCount = data.length / attrSize;
+        return vbo;
     }
     
-    public void createAttribute(int attribute, FloatBuffer data, int attrSize) {
-        VBO vbo = new VBO(GL15.GL_ARRAY_BUFFER);
+    public VBO createAttribute(int attribute, FloatBuffer data, int attrSize) {
+        VBO vbo = new VBO(GL15.GL_ARRAY_BUFFER, GL15.GL_STATIC_DRAW);
         vbo.bind();
         data.flip();
         vbo.storeData(data);
@@ -134,10 +142,11 @@ public class VAO {
         vbo.unbind();
         vbos.add(vbo);
         allAttribs.add(attribute);
+        return vbo;
     }
 
-    public void createIntAttribute(int attribute, IntBuffer data, int attrSize) {
-        VBO vbo = new VBO(GL15.GL_ARRAY_BUFFER);
+    public VBO createIntAttribute(int attribute, IntBuffer data, int attrSize) {
+        VBO vbo = new VBO(GL15.GL_ARRAY_BUFFER, GL15.GL_STATIC_DRAW);
         vbo.bind();
         data.flip();
         vbo.storeData(data);
@@ -146,6 +155,7 @@ public class VAO {
         vbo.unbind();
         vbos.add(vbo);
         allAttribs.add(attribute);
+        return vbo;
     }
 
     
@@ -170,10 +180,41 @@ public class VAO {
         GL11.glDrawArrays(mode, first, count);
     }
     
-    public void renderElement(int mode, int first, int count) {
+    public void renderElement(int mode, int offset, int count) {
         if(count == -1) count = vertexCount;
-        GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_INT, first);
+        GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_INT, offset * Integer.BYTES);
     }
-
+    
+    public void renderElement(int mode, int count) {
+        if(count == -1) count = vertexCount;
+        GL11.glDrawElements(mode, count, GL11.GL_UNSIGNED_INT, 0);
+    }
+    
+    public void renderElement(int mode, int[] indices) {
+        IntBuffer buffer = MemoryStack.stackPush().mallocInt(indices.length);
+        buffer.put(indices);
+        buffer.flip();
+        GL11.glDrawElements(mode, buffer);
+    }
+    
+    public VBO createEmptyVBO(long vboSize) {
+        VBO vbo = new VBO(GL15.GL_ARRAY_BUFFER, GL15.GL_DYNAMIC_DRAW);
+        vbo.bind();
+        vbo.storeData(vboSize);
+        vbos.add(vbo);
+        return vbo;
+    }
+    
+    public void createInstancedAttribute(int attribute, int attrSize, int stride, int offset) {
+        GL20.glVertexAttribPointer(attribute, attrSize, GL11.GL_FLOAT, false, stride, offset);
+        GL33.glVertexAttribDivisor(attribute, 1);
+        allAttribs.add(attribute);
+    }
+    
+    public void createAttribute(int attribute, int attrSize, int stride, int offset) {
+        GL20.glVertexAttribPointer(attribute, attrSize, GL11.GL_FLOAT, false, stride, offset);
+        allAttribs.add(attribute);
+    }
+ 
     
 }

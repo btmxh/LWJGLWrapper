@@ -21,11 +21,11 @@ import org.lwjgl.glfw.GLFW;
  */
 public class ThirdPersonCamera extends Camera{
     
-    private float minDist = 1f;
-    private float dist = minDist;
-    private float angle = 0;
+    protected float minDist = 1f;
+    protected float dist = minDist;
+    protected float angle = 0;
     
-    private ObjectData data;
+    protected ObjectData data;
 
     public ThirdPersonCamera(ObjectData data, float fov, Window window, float zNear, float zFar) {
         super(fov, window, zNear, zFar);
